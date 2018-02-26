@@ -333,11 +333,6 @@ class CameraViewController: UIViewController, UIDocumentPickerDelegate {
 	
 	@IBOutlet private weak var photoButton: UIButton!
 	@IBAction private func capturePhoto(_ photoButton: UIButton) {
-        /*
-			Retrieve the video preview layer's video orientation on the main queue before
-			entering the session queue. We do this to ensure UI elements are accessed on
-			the main thread and session configuration is done on the session queue.
-		*/
 		
 		sessionQueue.async {
 			// Update the photo output's connection to match the video orientation of the video preview layer.
@@ -545,14 +540,14 @@ class CameraViewController: UIViewController, UIDocumentPickerDelegate {
     func documentPicker(_ controller: UIDocumentPickerViewController,
                         didPickDocumentsAt urls: [URL])
     {
-        if (controller.documentPickerMode == UIDocumentPickerMode.open)
+        if (controller.documentPickerMode == UIDocumentPickerMode.open && urls.count > 0)
         {
             files.removeAll()
             for url in urls{
                 files.append(File(name: url.lastPathComponent, url: url))
             }
             if files.count > 1 {
-                files.sort { $0.name < $1.name }
+                files.sort(by: { $0.name < $1.name })
             }
             changeImage(toIndex: 0)
         }
@@ -635,22 +630,21 @@ class CameraViewController: UIViewController, UIDocumentPickerDelegate {
     
     var orientationMap: [AVCaptureVideoOrientation : UIImageOrientation] = [
         .portrait : .up,
-        .landscapeLeft : .right,
-        .landscapeRight : .left,
+        .landscapeLeft : .left,
+        .landscapeRight : .right,
         .portraitUpsideDown : .down
     ]
     
     func startGyros() {
         if motion.isDeviceMotionAvailable {
-            self.motion.deviceMotionUpdateInterval = 1.0 / 15.0
+            self.motion.deviceMotionUpdateInterval = 1.0 / 5.0
             self.motion.showsDeviceMovementDisplay = true
             self.motion.startDeviceMotionUpdates(using: .xMagneticNorthZVertical)
             
-            // Configure a timer to fetch the motion data.
-            self.timer = Timer(fire: Date(), interval: (1.0/15.0), repeats: true,
+            self.timer = Timer(fire: Date(), interval: (1.0/5.0), repeats: true,
                                block: { (timer) in
                                 if let data = self.motion.deviceMotion {
-                                    // Get the attitude relative to the magnetic north reference frame.
+                                    
                                     let x = data.attitude.pitch
                                     let y = data.attitude.roll
                                     
@@ -658,9 +652,9 @@ class CameraViewController: UIViewController, UIDocumentPickerDelegate {
                                         self.currentOrientation = .portrait
                                     } else if x < 0.75 && x > -0.75 {
                                         if y > 0.75 {
-                                            self.currentOrientation = .landscapeRight
-                                        } else if y < -0.75 {
                                             self.currentOrientation = .landscapeLeft
+                                        } else if y < -0.75 {
+                                            self.currentOrientation = .landscapeRight
                                         }
                                     } else if x < -0.75 {
                                         self.currentOrientation = .portraitUpsideDown
@@ -673,7 +667,6 @@ class CameraViewController: UIViewController, UIDocumentPickerDelegate {
                                 }
             })
             
-            // Add the timer to the current run loop.
             RunLoop.current.add(self.timer!, forMode: .defaultRunLoopMode)
         }
     }
