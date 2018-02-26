@@ -8,8 +8,9 @@ View controller for camera interface.
 import UIKit
 import AVFoundation
 import Photos
+import CoreMotion
 
-class CameraViewController: UIViewController {
+class CameraViewController: UIViewController, UIDocumentPickerDelegate {
 
 	// MARK: View Controller Life Cycle
 	
@@ -113,6 +114,7 @@ class CameraViewController: UIViewController {
                     }
 			}
 		}
+        startGyros()
 	}
 	
 	override func viewWillDisappear(_ animated: Bool) {
@@ -336,12 +338,11 @@ class CameraViewController: UIViewController {
 			entering the session queue. We do this to ensure UI elements are accessed on
 			the main thread and session configuration is done on the session queue.
 		*/
-        let videoPreviewLayerOrientation = previewView.videoPreviewLayer.connection?.videoOrientation
 		
 		sessionQueue.async {
 			// Update the photo output's connection to match the video orientation of the video preview layer.
             if let photoOutputConnection = self.photoOutput.connection(with: .video) {
-                photoOutputConnection.videoOrientation = videoPreviewLayerOrientation!
+                photoOutputConnection.videoOrientation = self.currentOrientation
 			}
 			
             var photoSettings = AVCapturePhotoSettings()
@@ -501,6 +502,181 @@ class CameraViewController: UIViewController {
 			)
 		}
 	}
+    
+    @IBOutlet weak var alphaSlider: UISlider!
+    @IBOutlet weak var clearButton: UIButton!
+    @IBOutlet weak var fileNameLabel: UILabel!
+    @IBOutlet weak var imagePageControl: UIPageControl!
+    @IBOutlet weak var imageView: UIImageView!
+    @IBOutlet weak var selectButton: UIButton!
+    @IBOutlet weak var zoomLabel: UILabel!
+    
+    struct File {
+        var name : String
+        var url : URL
+    }
+    
+    let minimumZoom = CGFloat(1.0)
+    let maximumZoom = CGFloat(5.0)
+    var actualZoom = CGFloat(1.0)
+    
+    var files = [File]()
+    
+    func fixAll(){
+        imagePageControl.numberOfPages = files.count
+        alphaSlider.isHidden = imagePageControl.numberOfPages > 0 ? false : true
+        if imagePageControl.numberOfPages < 1 {
+            imageView.image = nil
+            fileNameLabel.text = ""
+        }
+    }
+    
+    @IBAction func selectClicked(_ sender: Any) {
+        let types = ["public.image"]
+        //Create a object of document picker view and set the mode to Import
+        let docPicker = UIDocumentPickerViewController(documentTypes: types, in: UIDocumentPickerMode.open)
+        docPicker.allowsMultipleSelection = true
+        docPicker.delegate = self
+        //present the document picker
+        present(docPicker, animated: true, completion: nil)
+        //presentViewController:docPicker animated:YES completion:nil];
+    }
+    
+    func documentPicker(_ controller: UIDocumentPickerViewController,
+                        didPickDocumentsAt urls: [URL])
+    {
+        if (controller.documentPickerMode == UIDocumentPickerMode.open)
+        {
+            files.removeAll()
+            for url in urls{
+                files.append(File(name: url.lastPathComponent, url: url))
+            }
+            if files.count > 1 {
+                files.sort { $0.name < $1.name }
+            }
+            changeImage(toIndex: 0)
+        }
+    }
+    
+    @IBAction func alphaChanged(_ sender: Any) {
+        if alphaSlider.value < 1{
+            if imageView.image != nil{
+                imageView.alpha = CGFloat(alphaSlider.value)
+            }
+            
+            if (!session.isRunning){
+                session.startRunning()
+            }
+        } else {
+            session.stopRunning()
+        }
+    }
+    
+    @IBAction func clearClicked(_ sender: Any) {
+        files.removeAll()
+        fixAll()
+    }
+    
+    func changeImage(toIndex: Int){
+        if files[toIndex].url.startAccessingSecurityScopedResource() {
+            let image = UIImage(contentsOfFile: files[toIndex].url.path)!
+            imageView.image = UIImage(cgImage: image.cgImage!, scale: image.scale, orientation: self.orientationMap[self.currentOrientation]!)
+            fileNameLabel.text = files[toIndex].name
+            fixAll()
+            files[toIndex].url.stopAccessingSecurityScopedResource()
+        } else {
+            print("Can't access security scoped resourse")
+        }
+    }
+    
+    @IBAction func imagePageChanged(_ sender: Any) {
+        changeImage(toIndex: imagePageControl.currentPage)
+    }
+    
+    @IBAction func leftSwipe(_ sender: Any) {
+        if imagePageControl.currentPage < imagePageControl.numberOfPages-1 {
+            imagePageControl.currentPage += 1
+            changeImage(toIndex: imagePageControl.currentPage)
+        }
+    }
+    
+    @IBAction func rightSwipe(_ sender: Any) {
+        if imagePageControl.currentPage > 0 {
+            imagePageControl.currentPage -= 1
+            changeImage(toIndex: imagePageControl.currentPage)
+        }
+    }
+    
+    @IBAction func zoomChanged(_ sender: UIPinchGestureRecognizer) {
+        let device = videoDeviceInput.device
+        actualZoom = min(min(max(actualZoom + sender.velocity/25, minimumZoom), maximumZoom), device.activeFormat.videoMaxZoomFactor)
+        
+        do {
+            try device.lockForConfiguration()
+            device.videoZoomFactor = actualZoom
+            zoomLabel.text = "\(round(actualZoom*100)/100)x"
+            device.unlockForConfiguration()
+        } catch {
+            print("Could not lock device for configuration: \(error)")
+        }
+        
+        UIView.animate(withDuration: 0.1) {
+            self.zoomLabel.alpha = 1
+        }
+        UIView.animate(withDuration: 0.25) {
+            self.zoomLabel.alpha = 0
+        }
+    }
+    
+    let motion = CMMotionManager()
+    var timer : Timer?
+    
+    var currentOrientation : AVCaptureVideoOrientation = .portrait
+    
+    var orientationMap: [AVCaptureVideoOrientation : UIImageOrientation] = [
+        .portrait : .up,
+        .landscapeLeft : .right,
+        .landscapeRight : .left,
+        .portraitUpsideDown : .down
+    ]
+    
+    func startGyros() {
+        if motion.isDeviceMotionAvailable {
+            self.motion.deviceMotionUpdateInterval = 1.0 / 15.0
+            self.motion.showsDeviceMovementDisplay = true
+            self.motion.startDeviceMotionUpdates(using: .xMagneticNorthZVertical)
+            
+            // Configure a timer to fetch the motion data.
+            self.timer = Timer(fire: Date(), interval: (1.0/15.0), repeats: true,
+                               block: { (timer) in
+                                if let data = self.motion.deviceMotion {
+                                    // Get the attitude relative to the magnetic north reference frame.
+                                    let x = data.attitude.pitch
+                                    let y = data.attitude.roll
+                                    
+                                    if x > 0.75 {
+                                        self.currentOrientation = .portrait
+                                    } else if x < 0.75 && x > -0.75 {
+                                        if y > 0.75 {
+                                            self.currentOrientation = .landscapeRight
+                                        } else if y < -0.75 {
+                                            self.currentOrientation = .landscapeLeft
+                                        }
+                                    } else if x < -0.75 {
+                                        self.currentOrientation = .portraitUpsideDown
+                                    }
+                                    
+                                    if self.imageView.image != nil && self.imageView.image?.imageOrientation != self.orientationMap[self.currentOrientation] {
+                                        let image = self.imageView.image!
+                                        self.imageView.image = UIImage(cgImage: image.cgImage!, scale: image.scale, orientation: self.orientationMap[self.currentOrientation]!)
+                                    }
+                                }
+            })
+            
+            // Add the timer to the current run loop.
+            RunLoop.current.add(self.timer!, forMode: .defaultRunLoopMode)
+        }
+    }
 }
 
 extension AVCaptureVideoOrientation {

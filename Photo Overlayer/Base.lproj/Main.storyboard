@@ -1,11 +1,11 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<document type="com.apple.InterfaceBuilder3.CocoaTouch.Storyboard.XIB" version="3.0" toolsVersion="14087.3" targetRuntime="iOS.CocoaTouch" propertyAccessControl="none" useAutolayout="YES" useTraitCollections="YES" useSafeAreas="YES" colorMatched="YES" initialViewController="BYZ-38-t0r">
+<document type="com.apple.InterfaceBuilder3.CocoaTouch.Storyboard.XIB" version="3.0" toolsVersion="14101" targetRuntime="iOS.CocoaTouch" propertyAccessControl="none" useAutolayout="YES" useTraitCollections="YES" useSafeAreas="YES" colorMatched="YES" initialViewController="BYZ-38-t0r">
     <device id="retina4_7" orientation="portrait">
         <adaptation id="fullscreen"/>
     </device>
     <dependencies>
         <deployment identifier="iOS"/>
-        <plugIn identifier="com.apple.InterfaceBuilder.IBCocoaTouchPlugin" version="14075.4"/>
+        <plugIn identifier="com.apple.InterfaceBuilder.IBCocoaTouchPlugin" version="14086"/>
         <capability name="Aspect ratio constraints" minToolsVersion="5.1"/>
         <capability name="Safe area layout guides" minToolsVersion="9.0"/>
         <capability name="documents saved in the Xcode 8 format" minToolsVersion="8.0"/>
@@ -39,7 +39,7 @@
                                     <outletCollection property="gestureRecognizers" destination="fY6-qX-ntV" appends="YES" id="G6D-dx-xU8"/>
                                     <outletCollection property="gestureRecognizers" destination="0AZ-uA-wOY" appends="YES" id="0fe-0Q-rhC"/>
                                     <outletCollection property="gestureRecognizers" destination="3Jm-sh-JuF" appends="YES" id="f1P-uG-QUh"/>
-                                    <outletCollection property="gestureRecognizers" destination="TUq-Wr-LJr" appends="YES" id="uWi-ug-RoX"/>
+                                    <outletCollection property="gestureRecognizers" destination="49j-ly-Clk" appends="YES" id="pOi-bI-n9U"/>
                                 </connections>
                             </view>
                             <label hidden="YES" userInteractionEnabled="NO" contentMode="left" horizontalHuggingPriority="251" verticalHuggingPriority="251" text="Camera Unavailable" textAlignment="center" lineBreakMode="tailTruncation" numberOfLines="0" baselineAdjustment="alignBaselines" adjustsFontSizeToFit="NO" translatesAutoresizingMaskIntoConstraints="NO" id="zf0-db-esM" userLabel="Camera Unavailable">
@@ -66,7 +66,7 @@
                                     </userDefinedRuntimeAttribute>
                                 </userDefinedRuntimeAttributes>
                                 <connections>
-                                    <action selector="clearClicked:" destination="BYZ-38-t0r" eventType="touchUpInside" id="pdI-mc-4rU"/>
+                                    <action selector="clearClicked:" destination="BYZ-38-t0r" eventType="touchUpInside" id="gDj-LI-fzU"/>
                                 </connections>
                             </button>
                             <button opaque="NO" contentMode="scaleToFill" contentHorizontalAlignment="center" contentVerticalAlignment="center" buttonType="roundedRect" lineBreakMode="middleTruncation" translatesAutoresizingMaskIntoConstraints="NO" id="RYa-bc-ty1">
@@ -112,7 +112,7 @@
                             <pageControl opaque="NO" contentMode="scaleToFill" contentHorizontalAlignment="center" contentVerticalAlignment="center" hidesForSinglePage="YES" translatesAutoresizingMaskIntoConstraints="NO" id="jQ6-76-7LF">
                                 <rect key="frame" x="187.5" y="597" width="0.0" height="0.0"/>
                                 <connections>
-                                    <action selector="imagePageChanged:" destination="BYZ-38-t0r" eventType="valueChanged" id="ea0-wi-Utw"/>
+                                    <action selector="imagePageChanged:" destination="BYZ-38-t0r" eventType="valueChanged" id="KvW-76-Tc4"/>
                                 </connections>
                             </pageControl>
                             <label opaque="NO" userInteractionEnabled="NO" contentMode="left" horizontalHuggingPriority="251" verticalHuggingPriority="251" text="" textAlignment="natural" lineBreakMode="tailTruncation" baselineAdjustment="alignBaselines" adjustsFontSizeToFit="NO" translatesAutoresizingMaskIntoConstraints="NO" id="P2l-Z6-jzl">
@@ -131,7 +131,7 @@
                             <slider hidden="YES" opaque="NO" contentMode="scaleToFill" contentHorizontalAlignment="center" contentVerticalAlignment="center" value="0.5" minValue="0.0" maxValue="1" translatesAutoresizingMaskIntoConstraints="NO" id="0gG-Pq-Dgb">
                                 <rect key="frame" x="38" y="562" width="299" height="31"/>
                                 <connections>
-                                    <action selector="alphaChanged:" destination="BYZ-38-t0r" eventType="valueChanged" id="hlh-iY-gbO"/>
+                                    <action selector="alphaChanged:" destination="BYZ-38-t0r" eventType="valueChanged" id="5cM-oY-TQz"/>
                                 </connections>
                             </slider>
                             <label opaque="NO" userInteractionEnabled="NO" contentMode="left" horizontalHuggingPriority="251" verticalHuggingPriority="251" text="" textAlignment="natural" lineBreakMode="tailTruncation" baselineAdjustment="alignBaselines" adjustsFontSizeToFit="NO" translatesAutoresizingMaskIntoConstraints="NO" id="iDG-U6-Cfx">
@@ -175,16 +175,16 @@
                     <extendedEdge key="edgesForExtendedLayout"/>
                     <nil key="simulatedStatusBarMetrics"/>
                     <connections>
-                        <outlet property="alphaSlider" destination="0gG-Pq-Dgb" id="eLL-pl-7PD"/>
+                        <outlet property="alphaSlider" destination="0gG-Pq-Dgb" id="0uO-TJ-62o"/>
                         <outlet property="cameraUnavailableLabel" destination="zf0-db-esM" id="P9W-lb-Pb8"/>
-                        <outlet property="clearButton" destination="aoP-Dl-QAw" id="3b3-0u-cbp"/>
-                        <outlet property="fileNameLabel" destination="P2l-Z6-jzl" id="K8M-qq-9qD"/>
-                        <outlet property="imagePageControl" destination="jQ6-76-7LF" id="Cu8-Nn-579"/>
-                        <outlet property="imageView" destination="im9-bR-e6e" id="brT-9b-Fkk"/>
+                        <outlet property="clearButton" destination="aoP-Dl-QAw" id="u4N-0G-YGM"/>
+                        <outlet property="fileNameLabel" destination="P2l-Z6-jzl" id="RIb-Jv-UJD"/>
+                        <outlet property="imagePageControl" destination="jQ6-76-7LF" id="mFO-e7-VSq"/>
+                        <outlet property="imageView" destination="im9-bR-e6e" id="ed1-eV-UV2"/>
                         <outlet property="photoButton" destination="uCj-6P-mHF" id="Ha8-ua-hxy"/>
                         <outlet property="previewView" destination="3eR-Rn-XpZ" id="e7I-nu-L6j"/>
-                        <outlet property="selectButton" destination="RYa-bc-ty1" id="Hf8-nW-q6B"/>
-                        <outlet property="zoomLabel" destination="iDG-U6-Cfx" id="O7v-0L-kn8"/>
+                        <outlet property="selectButton" destination="RYa-bc-ty1" id="1Hq-ay-YhT"/>
+                        <outlet property="zoomLabel" destination="iDG-U6-Cfx" id="9qE-ao-hWT"/>
                     </connections>
                 </viewController>
                 <placeholder placeholderIdentifier="IBFirstResponder" id="dkx-z0-nzr" sceneMemberID="firstResponder"/>
@@ -195,17 +195,17 @@
                 </tapGestureRecognizer>
                 <swipeGestureRecognizer direction="right" id="0AZ-uA-wOY">
                     <connections>
-                        <action selector="rightSwipe:" destination="BYZ-38-t0r" id="tSG-3K-wfq"/>
+                        <action selector="rightSwipe:" destination="BYZ-38-t0r" id="KJu-rv-Ood"/>
                     </connections>
                 </swipeGestureRecognizer>
                 <swipeGestureRecognizer direction="left" id="3Jm-sh-JuF">
                     <connections>
-                        <action selector="leftSwipe:" destination="BYZ-38-t0r" id="FHK-KR-TPt"/>
+                        <action selector="leftSwipe:" destination="BYZ-38-t0r" id="HD2-Ll-LNj"/>
                     </connections>
                 </swipeGestureRecognizer>
-                <pinchGestureRecognizer id="TUq-Wr-LJr">
+                <pinchGestureRecognizer id="49j-ly-Clk">
                     <connections>
-                        <action selector="zoomChanged:" destination="BYZ-38-t0r" id="k6w-Vu-r0l"/>
+                        <action selector="zoomChanged:" destination="BYZ-38-t0r" id="NPX-Zb-gXL"/>
                     </connections>
                 </pinchGestureRecognizer>
             </objects>
