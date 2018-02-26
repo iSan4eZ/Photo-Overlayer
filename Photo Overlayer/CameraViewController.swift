@@ -606,6 +606,10 @@ class CameraViewController: UIViewController, UIDocumentPickerDelegate {
         let device = videoDeviceInput.device
         actualZoom = min(min(max(actualZoom + sender.velocity/25, minimumZoom), maximumZoom), device.activeFormat.videoMaxZoomFactor)
         
+        if actualZoom.isNaN {
+            actualZoom = minimumZoom
+        }
+        
         do {
             try device.lockForConfiguration()
             device.videoZoomFactor = actualZoom
