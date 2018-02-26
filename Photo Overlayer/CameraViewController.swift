@@ -542,12 +542,17 @@ class CameraViewController: UIViewController, UIDocumentPickerDelegate {
     {
         if (controller.documentPickerMode == UIDocumentPickerMode.open && urls.count > 0)
         {
+            for file in files{
+                file.url.stopAccessingSecurityScopedResource()
+            }
             files.removeAll()
+            imagePageControl.currentPage = 0
             for url in urls{
                 files.append(File(name: url.lastPathComponent, url: url))
             }
             if files.count > 1 {
-                files.sort(by: { $0.name < $1.name })
+                files.sort(by: { (s1, s2) -> Bool in return s1.name.localizedStandardCompare(s2.name) == .orderedAscending })
+                //files.sort(by: { $0.name < $1.name })
             }
             changeImage(toIndex: 0)
         }
@@ -578,7 +583,6 @@ class CameraViewController: UIViewController, UIDocumentPickerDelegate {
             imageView.image = UIImage(cgImage: image.cgImage!, scale: image.scale, orientation: self.orientationMap[self.currentOrientation]!)
             fileNameLabel.text = files[toIndex].name
             fixAll()
-            files[toIndex].url.stopAccessingSecurityScopedResource()
         } else {
             print("Can't access security scoped resourse")
         }
