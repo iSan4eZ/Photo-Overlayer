@@ -523,6 +523,9 @@ class CameraViewController: UIViewController, UIDocumentPickerDelegate {
         if imagePageControl.numberOfPages < 1 {
             imageView.image = nil
             fileNameLabel.text = ""
+            if !session.isRunning {
+            session.startRunning()
+            }
         }
     }
     
@@ -564,7 +567,7 @@ class CameraViewController: UIViewController, UIDocumentPickerDelegate {
                 imageView.alpha = CGFloat(alphaSlider.value)
             }
             
-            if (!session.isRunning){
+            if !session.isRunning {
                 session.startRunning()
             }
         } else {
