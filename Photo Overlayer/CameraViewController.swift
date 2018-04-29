@@ -349,7 +349,6 @@ class CameraViewController: UIViewController, UIDocumentPickerDelegate {
             }
             
             photoSettings.flashMode = .off
-            
 			photoSettings.isHighResolutionPhotoEnabled = true
 			if !photoSettings.__availablePreviewPhotoPixelFormatTypes.isEmpty {
 				photoSettings.previewPhotoFormat = [kCVPixelBufferPixelFormatTypeKey as String: photoSettings.__availablePreviewPhotoPixelFormatTypes.first!]
@@ -524,7 +523,7 @@ class CameraViewController: UIViewController, UIDocumentPickerDelegate {
             imageView.image = nil
             fileNameLabel.text = ""
             if !session.isRunning {
-            session.startRunning()
+                session.startRunning()
             }
         }
     }
