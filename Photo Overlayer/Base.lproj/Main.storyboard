@@ -1,12 +1,11 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<document type="com.apple.InterfaceBuilder3.CocoaTouch.Storyboard.XIB" version="3.0" toolsVersion="14101" targetRuntime="iOS.CocoaTouch" propertyAccessControl="none" useAutolayout="YES" useTraitCollections="YES" useSafeAreas="YES" colorMatched="YES" initialViewController="BYZ-38-t0r">
+<document type="com.apple.InterfaceBuilder3.CocoaTouch.Storyboard.XIB" version="3.0" toolsVersion="14269.12" targetRuntime="iOS.CocoaTouch" propertyAccessControl="none" useAutolayout="YES" useTraitCollections="YES" useSafeAreas="YES" colorMatched="YES" initialViewController="BYZ-38-t0r">
     <device id="retina4_7" orientation="portrait">
         <adaptation id="fullscreen"/>
     </device>
     <dependencies>
         <deployment identifier="iOS"/>
-        <plugIn identifier="com.apple.InterfaceBuilder.IBCocoaTouchPlugin" version="14086"/>
-        <capability name="Aspect ratio constraints" minToolsVersion="5.1"/>
+        <plugIn identifier="com.apple.InterfaceBuilder.IBCocoaTouchPlugin" version="14252.5"/>
         <capability name="Safe area layout guides" minToolsVersion="9.0"/>
         <capability name="documents saved in the Xcode 8 format" minToolsVersion="8.0"/>
     </dependencies>
@@ -19,28 +18,40 @@
                         <rect key="frame" x="0.0" y="0.0" width="375" height="667"/>
                         <autoresizingMask key="autoresizingMask" widthSizable="YES" heightSizable="YES"/>
                         <subviews>
-                            <view contentMode="scaleAspectFit" translatesAutoresizingMaskIntoConstraints="NO" id="3eR-Rn-XpZ" userLabel="Preview" customClass="PreviewView" customModule="Photo_Overlayer" customModuleProvider="target">
-                                <rect key="frame" x="0.0" y="0.5" width="375" height="666.5"/>
+                            <view contentMode="scaleToFill" translatesAutoresizingMaskIntoConstraints="NO" id="xgl-Bn-60h">
+                                <rect key="frame" x="0.0" y="0.0" width="375" height="667"/>
                                 <subviews>
-                                    <imageView userInteractionEnabled="NO" alpha="0.5" contentMode="scaleAspectFit" horizontalHuggingPriority="251" verticalHuggingPriority="251" translatesAutoresizingMaskIntoConstraints="NO" id="im9-bR-e6e">
-                                        <rect key="frame" x="0.0" y="0.0" width="375" height="666.5"/>
-                                    </imageView>
+                                    <view contentMode="scaleAspectFit" translatesAutoresizingMaskIntoConstraints="NO" id="3eR-Rn-XpZ" userLabel="Preview" customClass="PreviewView" customModule="Photo_Overlayer" customModuleProvider="target">
+                                        <rect key="frame" x="0.0" y="0.0" width="375" height="667"/>
+                                        <subviews>
+                                            <imageView userInteractionEnabled="NO" alpha="0.5" contentMode="scaleAspectFit" horizontalHuggingPriority="251" verticalHuggingPriority="251" translatesAutoresizingMaskIntoConstraints="NO" id="im9-bR-e6e">
+                                                <rect key="frame" x="0.0" y="0.0" width="375" height="667"/>
+                                            </imageView>
+                                        </subviews>
+                                        <color key="backgroundColor" red="0.0" green="0.0" blue="0.0" alpha="1" colorSpace="custom" customColorSpace="sRGB"/>
+                                        <gestureRecognizers/>
+                                        <constraints>
+                                            <constraint firstAttribute="trailing" secondItem="im9-bR-e6e" secondAttribute="trailing" id="DB2-ct-5Ef"/>
+                                            <constraint firstAttribute="leading" secondItem="im9-bR-e6e" secondAttribute="leading" id="J9v-bg-6ds"/>
+                                            <constraint firstAttribute="top" secondItem="im9-bR-e6e" secondAttribute="top" id="kBy-NJ-rpj"/>
+                                            <constraint firstAttribute="bottom" secondItem="im9-bR-e6e" secondAttribute="bottom" id="rQs-68-yQ8"/>
+                                        </constraints>
+                                        <connections>
+                                            <outletCollection property="gestureRecognizers" destination="3Jm-sh-JuF" appends="YES" id="f1P-uG-QUh"/>
+                                            <outletCollection property="gestureRecognizers" destination="0AZ-uA-wOY" appends="YES" id="0fe-0Q-rhC"/>
+                                            <outletCollection property="gestureRecognizers" destination="fY6-qX-ntV" appends="YES" id="G6D-dx-xU8"/>
+                                            <outletCollection property="gestureRecognizers" destination="49j-ly-Clk" appends="YES" id="pOi-bI-n9U"/>
+                                        </connections>
+                                    </view>
                                 </subviews>
-                                <color key="backgroundColor" red="0.0" green="0.0" blue="0.0" alpha="1" colorSpace="custom" customColorSpace="sRGB"/>
-                                <gestureRecognizers/>
+                                <color key="backgroundColor" white="1" alpha="1" colorSpace="custom" customColorSpace="genericGamma22GrayColorSpace"/>
                                 <constraints>
-                                    <constraint firstItem="im9-bR-e6e" firstAttribute="leading" secondItem="3eR-Rn-XpZ" secondAttribute="leading" id="Aay-cJ-Ono"/>
-                                    <constraint firstItem="im9-bR-e6e" firstAttribute="bottom" secondItem="3eR-Rn-XpZ" secondAttribute="bottom" id="KY0-Sd-N3W"/>
-                                    <constraint firstItem="im9-bR-e6e" firstAttribute="trailing" secondItem="3eR-Rn-XpZ" secondAttribute="trailing" id="lXk-5e-T79"/>
-                                    <constraint firstItem="im9-bR-e6e" firstAttribute="top" secondItem="3eR-Rn-XpZ" secondAttribute="top" id="rkD-ET-uQ1"/>
-                                    <constraint firstAttribute="width" secondItem="3eR-Rn-XpZ" secondAttribute="height" multiplier="9:16" id="vtU-mO-yGo"/>
+                                    <constraint firstAttribute="trailing" secondItem="3eR-Rn-XpZ" secondAttribute="trailing" id="IgS-bj-EDz"/>
+                                    <constraint firstAttribute="width" secondItem="xgl-Bn-60h" secondAttribute="height" multiplier="9:16" id="JZQ-ey-AF0"/>
+                                    <constraint firstAttribute="bottom" secondItem="3eR-Rn-XpZ" secondAttribute="bottom" id="Nfe-xz-gsd"/>
+                                    <constraint firstItem="3eR-Rn-XpZ" firstAttribute="top" secondItem="xgl-Bn-60h" secondAttribute="top" id="mUz-wV-dge"/>
+                                    <constraint firstItem="3eR-Rn-XpZ" firstAttribute="leading" secondItem="xgl-Bn-60h" secondAttribute="leading" id="zQQ-4P-4i0"/>
                                 </constraints>
-                                <connections>
-                                    <outletCollection property="gestureRecognizers" destination="fY6-qX-ntV" appends="YES" id="G6D-dx-xU8"/>
-                                    <outletCollection property="gestureRecognizers" destination="0AZ-uA-wOY" appends="YES" id="0fe-0Q-rhC"/>
-                                    <outletCollection property="gestureRecognizers" destination="3Jm-sh-JuF" appends="YES" id="f1P-uG-QUh"/>
-                                    <outletCollection property="gestureRecognizers" destination="49j-ly-Clk" appends="YES" id="pOi-bI-n9U"/>
-                                </connections>
                             </view>
                             <label hidden="YES" userInteractionEnabled="NO" contentMode="left" horizontalHuggingPriority="251" verticalHuggingPriority="251" text="Camera Unavailable" textAlignment="center" lineBreakMode="tailTruncation" numberOfLines="0" baselineAdjustment="alignBaselines" adjustsFontSizeToFit="NO" translatesAutoresizingMaskIntoConstraints="NO" id="zf0-db-esM" userLabel="Camera Unavailable">
                                 <rect key="frame" x="83.5" y="319" width="208" height="29"/>
@@ -135,7 +146,7 @@
                                 </connections>
                             </slider>
                             <label opaque="NO" userInteractionEnabled="NO" contentMode="left" horizontalHuggingPriority="251" verticalHuggingPriority="251" text="" textAlignment="natural" lineBreakMode="tailTruncation" baselineAdjustment="alignBaselines" adjustsFontSizeToFit="NO" translatesAutoresizingMaskIntoConstraints="NO" id="iDG-U6-Cfx">
-                                <rect key="frame" x="187" y="333.5" width="0.0" height="0.0"/>
+                                <rect key="frame" x="187.5" y="333.5" width="0.0" height="0.0"/>
                                 <color key="backgroundColor" red="0.0" green="0.0" blue="0.0" alpha="0.29999999999999999" colorSpace="custom" customColorSpace="sRGB"/>
                                 <fontDescription key="fontDescription" type="system" pointSize="25"/>
                                 <color key="textColor" red="1" green="1" blue="0.0" alpha="1" colorSpace="custom" customColorSpace="sRGB"/>
@@ -145,9 +156,9 @@
                         </subviews>
                         <color key="backgroundColor" red="0.0" green="0.0" blue="0.0" alpha="1" colorSpace="custom" customColorSpace="sRGB"/>
                         <constraints>
-                            <constraint firstItem="3eR-Rn-XpZ" firstAttribute="centerX" secondItem="8bC-Xf-vdC" secondAttribute="centerX" id="3fD-la-dmn"/>
                             <constraint firstItem="uCj-6P-mHF" firstAttribute="centerX" secondItem="nyU-fN-aJh" secondAttribute="centerX" id="4mP-Zw-z6q"/>
                             <constraint firstItem="P2l-Z6-jzl" firstAttribute="top" secondItem="nyU-fN-aJh" secondAttribute="top" constant="15" id="5eO-Ek-IIp"/>
+                            <constraint firstItem="xgl-Bn-60h" firstAttribute="top" secondItem="8bC-Xf-vdC" secondAttribute="top" id="6Ae-1S-9ZS"/>
                             <constraint firstItem="iDG-U6-Cfx" firstAttribute="centerX" secondItem="8bC-Xf-vdC" secondAttribute="centerX" id="6kc-Vb-DaU"/>
                             <constraint firstItem="RYa-bc-ty1" firstAttribute="leading" secondItem="uCj-6P-mHF" secondAttribute="trailing" constant="35" id="A35-qU-ucj"/>
                             <constraint firstItem="RYa-bc-ty1" firstAttribute="bottom" secondItem="uCj-6P-mHF" secondAttribute="bottom" id="ADA-sk-q2L"/>
@@ -156,25 +167,24 @@
                             <constraint firstItem="aoP-Dl-QAw" firstAttribute="bottom" secondItem="uCj-6P-mHF" secondAttribute="bottom" id="HLv-m2-dJU"/>
                             <constraint firstItem="uCj-6P-mHF" firstAttribute="bottom" secondItem="nyU-fN-aJh" secondAttribute="bottom" constant="-20" id="Jes-Xb-Ks2"/>
                             <constraint firstItem="P2l-Z6-jzl" firstAttribute="centerX" secondItem="8bC-Xf-vdC" secondAttribute="centerX" id="PaH-rx-Kng"/>
+                            <constraint firstItem="xgl-Bn-60h" firstAttribute="centerX" secondItem="8bC-Xf-vdC" secondAttribute="centerX" id="R0E-fQ-Ahw"/>
                             <constraint firstItem="zf0-db-esM" firstAttribute="centerY" secondItem="8bC-Xf-vdC" secondAttribute="centerY" id="Ris-mI-8lA"/>
-                            <constraint firstItem="3eR-Rn-XpZ" firstAttribute="trailing" relation="lessThanOrEqual" secondItem="nyU-fN-aJh" secondAttribute="trailing" id="SiM-eK-tZr"/>
                             <constraint firstItem="0gG-Pq-Dgb" firstAttribute="trailing" secondItem="RYa-bc-ty1" secondAttribute="trailing" id="Szx-UO-XhH"/>
                             <constraint firstItem="zf0-db-esM" firstAttribute="centerX" secondItem="nyU-fN-aJh" secondAttribute="centerX" id="W6q-xJ-jfF"/>
                             <constraint firstItem="jQ6-76-7LF" firstAttribute="bottom" secondItem="uCj-6P-mHF" secondAttribute="top" id="Wld-4O-zwQ"/>
-                            <constraint firstItem="3eR-Rn-XpZ" firstAttribute="bottom" secondItem="nyU-fN-aJh" secondAttribute="bottom" id="aKW-7s-oS4"/>
                             <constraint firstItem="0gG-Pq-Dgb" firstAttribute="leading" secondItem="aoP-Dl-QAw" secondAttribute="leading" id="dRY-Vs-nsd"/>
                             <constraint firstItem="aoP-Dl-QAw" firstAttribute="trailing" secondItem="uCj-6P-mHF" secondAttribute="leading" constant="-35" id="dk8-vu-eAZ"/>
                             <constraint firstItem="iDG-U6-Cfx" firstAttribute="centerY" secondItem="8bC-Xf-vdC" secondAttribute="centerY" id="gZl-2F-Euj"/>
                             <constraint firstItem="0gG-Pq-Dgb" firstAttribute="bottom" secondItem="jQ6-76-7LF" secondAttribute="top" constant="-5" id="ihl-2R-XEH"/>
-                            <constraint firstItem="3eR-Rn-XpZ" firstAttribute="top" secondItem="8bC-Xf-vdC" secondAttribute="top" id="m73-la-zhT"/>
-                            <constraint firstItem="3eR-Rn-XpZ" firstAttribute="leading" relation="greaterThanOrEqual" secondItem="nyU-fN-aJh" secondAttribute="leading" id="npW-dF-6WT"/>
                             <constraint firstItem="P2l-Z6-jzl" firstAttribute="trailing" relation="lessThanOrEqual" secondItem="nyU-fN-aJh" secondAttribute="trailing" id="uAH-Ok-1hX"/>
+                            <constraint firstItem="xgl-Bn-60h" firstAttribute="bottom" secondItem="8bC-Xf-vdC" secondAttribute="bottom" id="yCi-0i-1TS"/>
                         </constraints>
                         <viewLayoutGuide key="safeArea" id="nyU-fN-aJh"/>
                     </view>
                     <extendedEdge key="edgesForExtendedLayout"/>
                     <nil key="simulatedStatusBarMetrics"/>
                     <connections>
+                        <outlet property="PreviewHolder" destination="xgl-Bn-60h" id="a70-JF-PqQ"/>
                         <outlet property="alphaSlider" destination="0gG-Pq-Dgb" id="0uO-TJ-62o"/>
                         <outlet property="cameraUnavailableLabel" destination="zf0-db-esM" id="P9W-lb-Pb8"/>
                         <outlet property="clearButton" destination="aoP-Dl-QAw" id="u4N-0G-YGM"/>

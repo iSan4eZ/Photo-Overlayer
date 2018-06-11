@@ -14,15 +14,19 @@ class CameraViewController: UIViewController, UIDocumentPickerDelegate {
 
 	// MARK: View Controller Life Cycle
 	
+    @IBOutlet weak var PreviewHolder: UIView!
+    
     override func viewDidLoad() {
 		super.viewDidLoad()
 		
 		// Disable UI. The UI is enabled if and only if the session starts running.
 		photoButton.isEnabled = false
-		
+  
 		// Set up the video preview view.
 		previewView.session = session
-		
+        
+        previewView.clipsToBounds = true;
+        
 		/*
 			Check video authorization status. Video access is required and audio
 			access is optional. If audio access is denied, audio is not recorded
