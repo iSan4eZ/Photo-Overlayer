@@ -308,7 +308,6 @@ class CameraViewController: UIViewController, UIDocumentPickerDelegate {
             focus(with: .autoFocus, exposureMode: .autoExpose, at: devicePoint, monitorSubjectAreaChange: true)
         } else {
             hideStatusBar.toggle()
-            print("update \(hideStatusBar)")
             setNeedsStatusBarAppearanceUpdate()
         }
 	}
