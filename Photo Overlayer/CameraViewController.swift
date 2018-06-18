@@ -297,8 +297,12 @@ class CameraViewController: UIViewController, UIDocumentPickerDelegate {
 
 	
 	@IBAction private func focusAndExposeTap(_ gestureRecognizer: UITapGestureRecognizer) {
-        let devicePoint = previewView.videoPreviewLayer.captureDevicePointConverted(fromLayerPoint: gestureRecognizer.location(in: gestureRecognizer.view))
-		focus(with: .autoFocus, exposureMode: .autoExpose, at: devicePoint, monitorSubjectAreaChange: true)
+        if alphaSlider.value < 1{
+            let devicePoint = previewView.videoPreviewLayer.captureDevicePointConverted(fromLayerPoint: gestureRecognizer.location(in: gestureRecognizer.view))
+            focus(with: .autoFocus, exposureMode: .autoExpose, at: devicePoint, monitorSubjectAreaChange: true)
+        } else {
+            UIApplication.shared.isStatusBarHidden.toggle()
+        }
 	}
 	
     private func focus(with focusMode: AVCaptureDevice.FocusMode, exposureMode: AVCaptureDevice.ExposureMode, at devicePoint: CGPoint, monitorSubjectAreaChange: Bool) {
@@ -530,6 +534,9 @@ class CameraViewController: UIViewController, UIDocumentPickerDelegate {
                 session.startRunning()
             }
         }
+        if alphaSlider.value < 1{
+            UIApplication.shared.isStatusBarHidden = true
+        }
     }
     
     @IBAction func selectClicked(_ sender: Any) {
@@ -566,6 +573,9 @@ class CameraViewController: UIViewController, UIDocumentPickerDelegate {
     
     @IBAction func alphaChanged(_ sender: Any) {
         if alphaSlider.value < 1{
+            if UIApplication.shared.isStatusBarHidden == false{
+                UIApplication.shared.isStatusBarHidden.toggle()
+            }
             if imageView.image != nil{
                 imageView.alpha = CGFloat(alphaSlider.value)
             }
