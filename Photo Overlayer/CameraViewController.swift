@@ -16,6 +16,12 @@ class CameraViewController: UIViewController, UIDocumentPickerDelegate {
 	
     @IBOutlet weak var PreviewHolder: UIView!
     
+    var hideStatusBar = false
+    
+    override var prefersStatusBarHidden: Bool{
+        return hideStatusBar
+    }
+    
     override func viewDidLoad() {
 		super.viewDidLoad()
 		
@@ -98,7 +104,7 @@ class CameraViewController: UIViewController, UIDocumentPickerDelegate {
                         alertController.addAction(UIAlertAction(title: NSLocalizedString("Settings", comment: "Alert button to open Settings"),
                                                                 style: .`default`,
                                                                 handler: { _ in
-                            UIApplication.shared.open(URL(string: UIApplicationOpenSettingsURLString)!, options: [:], completionHandler: nil)
+                            UIApplication.shared.open(URL(string: UIApplication.openSettingsURLString)!, options: convertToUIApplicationOpenExternalURLOptionsKeyDictionary([:]), completionHandler: nil)
                         }))
                         
                         self.present(alertController, animated: true, completion: nil)
@@ -301,7 +307,9 @@ class CameraViewController: UIViewController, UIDocumentPickerDelegate {
             let devicePoint = previewView.videoPreviewLayer.captureDevicePointConverted(fromLayerPoint: gestureRecognizer.location(in: gestureRecognizer.view))
             focus(with: .autoFocus, exposureMode: .autoExpose, at: devicePoint, monitorSubjectAreaChange: true)
         } else {
-            UIApplication.shared.isStatusBarHidden.toggle()
+            hideStatusBar.toggle()
+            print("update \(hideStatusBar)")
+            setNeedsStatusBarAppearanceUpdate()
         }
 	}
 	
@@ -535,7 +543,8 @@ class CameraViewController: UIViewController, UIDocumentPickerDelegate {
             }
         }
         if alphaSlider.value < 1{
-            UIApplication.shared.isStatusBarHidden = true
+            hideStatusBar = true
+            setNeedsStatusBarAppearanceUpdate()
         }
     }
     
@@ -573,8 +582,9 @@ class CameraViewController: UIViewController, UIDocumentPickerDelegate {
     
     @IBAction func alphaChanged(_ sender: Any) {
         if alphaSlider.value < 1{
-            if UIApplication.shared.isStatusBarHidden == false{
-                UIApplication.shared.isStatusBarHidden.toggle()
+            if !hideStatusBar{
+                hideStatusBar = true
+                setNeedsStatusBarAppearanceUpdate()
             }
             if imageView.image != nil{
                 imageView.alpha = CGFloat(alphaSlider.value)
@@ -652,7 +662,7 @@ class CameraViewController: UIViewController, UIDocumentPickerDelegate {
     
     var currentOrientation : AVCaptureVideoOrientation = .portrait
     
-    var orientationMap: [AVCaptureVideoOrientation : UIImageOrientation] = [
+    var orientationMap: [AVCaptureVideoOrientation : UIImage.Orientation] = [
         .portrait : .up,
         .landscapeLeft : .left,
         .landscapeRight : .right,
@@ -730,4 +740,9 @@ extension AVCaptureDevice.DiscoverySession {
         
         return uniqueDevicePositions.count
     }
+}
+
+// Helper function inserted by Swift 4.2 migrator.
+fileprivate func convertToUIApplicationOpenExternalURLOptionsKeyDictionary(_ input: [String: Any]) -> [UIApplication.OpenExternalURLOptionsKey: Any] {
+	return Dictionary(uniqueKeysWithValues: input.map { key, value in (UIApplication.OpenExternalURLOptionsKey(rawValue: key), value)})
 }
