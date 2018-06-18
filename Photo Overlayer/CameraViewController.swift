@@ -597,7 +597,15 @@ class CameraViewController: UIViewController, UIDocumentPickerDelegate {
         }
     }
     
-    @IBAction func clearClicked(_ sender: Any) {
+    @IBAction func clearTapped(_ sender: UITapGestureRecognizer) {
+        files.remove(at: imagePageControl.currentPage)
+        fixAll()
+        if files.count > 0{
+            changeImage(toIndex: imagePageControl.currentPage)
+        }
+    }
+    
+    @IBAction func clearLongPressed(_ sender: UILongPressGestureRecognizer) {
         files.removeAll()
         fixAll()
     }

@@ -63,6 +63,7 @@
                             <button opaque="NO" contentMode="scaleToFill" contentHorizontalAlignment="center" contentVerticalAlignment="center" buttonType="roundedRect" lineBreakMode="middleTruncation" translatesAutoresizingMaskIntoConstraints="NO" id="aoP-Dl-QAw">
                                 <rect key="frame" x="40" y="597" width="75" height="50"/>
                                 <color key="backgroundColor" red="0.0" green="0.0" blue="0.0" alpha="0.29999999999999999" colorSpace="custom" customColorSpace="sRGB"/>
+                                <gestureRecognizers/>
                                 <constraints>
                                     <constraint firstAttribute="height" constant="50" id="VuY-K0-hiD"/>
                                     <constraint firstAttribute="width" constant="75" id="sRT-en-XD4"/>
@@ -77,7 +78,8 @@
                                     </userDefinedRuntimeAttribute>
                                 </userDefinedRuntimeAttributes>
                                 <connections>
-                                    <action selector="clearClicked:" destination="BYZ-38-t0r" eventType="touchUpInside" id="gDj-LI-fzU"/>
+                                    <outletCollection property="gestureRecognizers" destination="SK0-UA-W1l" appends="YES" id="1pl-vg-2UK"/>
+                                    <outletCollection property="gestureRecognizers" destination="h4j-6s-QjI" appends="YES" id="4v3-d2-Onl"/>
                                 </connections>
                             </button>
                             <button opaque="NO" contentMode="scaleToFill" contentHorizontalAlignment="center" contentVerticalAlignment="center" buttonType="roundedRect" lineBreakMode="middleTruncation" translatesAutoresizingMaskIntoConstraints="NO" id="RYa-bc-ty1">
@@ -218,6 +220,16 @@
                         <action selector="zoomChanged:" destination="BYZ-38-t0r" id="NPX-Zb-gXL"/>
                     </connections>
                 </pinchGestureRecognizer>
+                <tapGestureRecognizer id="SK0-UA-W1l">
+                    <connections>
+                        <action selector="clearTapped:" destination="BYZ-38-t0r" id="FG0-tt-eia"/>
+                    </connections>
+                </tapGestureRecognizer>
+                <pongPressGestureRecognizer allowableMovement="10" minimumPressDuration="0.5" id="h4j-6s-QjI">
+                    <connections>
+                        <action selector="clearLongPressed:" destination="BYZ-38-t0r" id="yu8-SQ-buo"/>
+                    </connections>
+                </pongPressGestureRecognizer>
             </objects>
             <point key="canvasLocation" x="-656.79999999999995" y="-630.13493253373315"/>
         </scene>
