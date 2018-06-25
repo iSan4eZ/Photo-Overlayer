@@ -17,9 +17,14 @@ class CameraViewController: UIViewController, UIDocumentPickerDelegate {
     @IBOutlet weak var PreviewHolder: UIView!
     
     var hideStatusBar = false
+    var statusBarStyle = UIStatusBarStyle.lightContent
     
     override var prefersStatusBarHidden: Bool{
         return hideStatusBar
+    }
+    
+    override var preferredStatusBarStyle: UIStatusBarStyle{
+        return statusBarStyle
     }
     
     override func viewDidLoad() {

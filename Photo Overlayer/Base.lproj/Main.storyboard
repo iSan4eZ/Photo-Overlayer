@@ -122,7 +122,7 @@
                                     <action selector="capturePhoto:" destination="BYZ-38-t0r" eventType="touchUpInside" id="o5K-SC-fYn"/>
                                 </connections>
                             </button>
-                            <pageControl opaque="NO" contentMode="scaleToFill" contentHorizontalAlignment="center" contentVerticalAlignment="center" hidesForSinglePage="YES" translatesAutoresizingMaskIntoConstraints="NO" id="jQ6-76-7LF">
+                            <pageControl opaque="NO" userInteractionEnabled="NO" contentMode="scaleToFill" contentHorizontalAlignment="center" contentVerticalAlignment="center" hidesForSinglePage="YES" translatesAutoresizingMaskIntoConstraints="NO" id="jQ6-76-7LF">
                                 <rect key="frame" x="187.5" y="597" width="0.0" height="0.0"/>
                                 <connections>
                                     <action selector="imagePageChanged:" destination="BYZ-38-t0r" eventType="valueChanged" id="KvW-76-Tc4"/>
