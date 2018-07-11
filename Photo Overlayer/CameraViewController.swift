@@ -130,6 +130,7 @@ class CameraViewController: UIViewController, UIDocumentPickerDelegate {
 			}
 		}
         startGyros()
+        fixAll()
 	}
 	
 	override func viewWillDisappear(_ animated: Bool) {
@@ -538,7 +539,8 @@ class CameraViewController: UIViewController, UIDocumentPickerDelegate {
     
     func fixAll(){
         imagePageControl.numberOfPages = files.count
-        alphaSlider.isHidden = imagePageControl.numberOfPages > 0 ? false : true
+        alphaSlider.isHidden = !(imagePageControl.numberOfPages > 0)
+        clearButton.isEnabled = imagePageControl.numberOfPages > 0
         if imagePageControl.numberOfPages < 1 {
             imageView.image = nil
             fileNameLabel.text = ""
@@ -550,6 +552,7 @@ class CameraViewController: UIViewController, UIDocumentPickerDelegate {
             hideStatusBar = true
             setNeedsStatusBarAppearanceUpdate()
         }
+        photoButton.isEnabled = session.isRunning
     }
     
     @IBAction func selectClicked(_ sender: Any) {
@@ -558,6 +561,7 @@ class CameraViewController: UIViewController, UIDocumentPickerDelegate {
         let docPicker = UIDocumentPickerViewController(documentTypes: types, in: UIDocumentPickerMode.open)
         docPicker.allowsMultipleSelection = true
         docPicker.delegate = self
+        session.stopRunning()
         //present the document picker
         present(docPicker, animated: true, completion: nil)
         //presentViewController:docPicker animated:YES completion:nil];
@@ -582,6 +586,8 @@ class CameraViewController: UIViewController, UIDocumentPickerDelegate {
             }
             changeImage(toIndex: 0)
         }
+        session.startRunning()
+        fixAll()
     }
     
     @IBAction func alphaChanged(_ sender: Any) {
@@ -603,10 +609,12 @@ class CameraViewController: UIViewController, UIDocumentPickerDelegate {
     }
     
     @IBAction func clearTapped(_ sender: UITapGestureRecognizer) {
-        files.remove(at: imagePageControl.currentPage)
-        fixAll()
         if files.count > 0{
-            changeImage(toIndex: imagePageControl.currentPage)
+            files.remove(at: imagePageControl.currentPage)
+            fixAll()
+            if files.count > 0{
+                changeImage(toIndex: imagePageControl.currentPage)
+            }
         }
     }
     
@@ -713,7 +721,7 @@ class CameraViewController: UIViewController, UIDocumentPickerDelegate {
                                 }
             })
             
-            RunLoop.current.add(self.timer!, forMode: .defaultRunLoopMode)
+            RunLoop.current.add(self.timer!, forMode: .default)
         }
     }
 }
