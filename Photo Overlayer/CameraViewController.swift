@@ -309,13 +309,14 @@ class CameraViewController: UIViewController, UIDocumentPickerDelegate {
 
 	
 	@IBAction private func focusAndExposeTap(_ gestureRecognizer: UITapGestureRecognizer) {
-        if alphaSlider.value < 1{
+        if alphaSlider.value < 1 || alphaSlider.isHidden {
             let devicePoint = previewView.videoPreviewLayer.captureDevicePointConverted(fromLayerPoint: gestureRecognizer.location(in: gestureRecognizer.view))
             focus(with: .autoFocus, exposureMode: .autoExpose, at: devicePoint, monitorSubjectAreaChange: true)
         } else {
             hideStatusBar.toggle()
             setNeedsStatusBarAppearanceUpdate()
         }
+        
 	}
 	
     private func focus(with focusMode: AVCaptureDevice.FocusMode, exposureMode: AVCaptureDevice.ExposureMode, at devicePoint: CGPoint, monitorSubjectAreaChange: Bool) {
@@ -536,6 +537,7 @@ class CameraViewController: UIViewController, UIDocumentPickerDelegate {
     var actualZoom = CGFloat(1.0)
     
     var files = [File]()
+    var currentFile : File?
     
     func fixAll(){
         imagePageControl.numberOfPages = files.count
@@ -547,11 +549,20 @@ class CameraViewController: UIViewController, UIDocumentPickerDelegate {
             if !session.isRunning {
                 session.startRunning()
             }
+        } else {
+            currentFile = files[imagePageControl.currentPage]
         }
         if alphaSlider.value < 1{
             hideStatusBar = true
             setNeedsStatusBarAppearanceUpdate()
+            
+            if !session.isRunning{
+                session.startRunning()
+            }
+        } else if session.isRunning && imagePageControl.numberOfPages > 0 {
+            session.stopRunning()
         }
+        
         photoButton.isEnabled = session.isRunning
     }
     
@@ -586,7 +597,6 @@ class CameraViewController: UIViewController, UIDocumentPickerDelegate {
             }
             changeImage(toIndex: 0)
         }
-        session.startRunning()
         fixAll()
     }
     
@@ -606,6 +616,7 @@ class CameraViewController: UIViewController, UIDocumentPickerDelegate {
         } else {
             session.stopRunning()
         }
+        photoButton.isEnabled = session.isRunning
     }
     
     @IBAction func clearTapped(_ sender: UITapGestureRecognizer) {
