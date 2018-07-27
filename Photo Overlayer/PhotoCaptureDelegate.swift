@@ -20,11 +20,20 @@ class PhotoCaptureProcessor: NSObject {
 	private var photoData: Data?
 	
 	private var livePhotoCompanionMovieURL: URL?
+    
+    var actialFile : CameraViewController.File?
+    
+    var zoomValue = CGFloat()
 
 	init(with requestedPhotoSettings: AVCapturePhotoSettings,
 	     willCapturePhotoAnimation: @escaping () -> Void,
 	     livePhotoCaptureHandler: @escaping (Bool) -> Void,
 	     completionHandler: @escaping (PhotoCaptureProcessor) -> Void) {
+        if CameraViewController.filesQueue.count > 0{
+            actialFile = CameraViewController.filesQueue.first!
+            CameraViewController.filesQueue.remove(at: 0)
+        }
+        zoomValue = CameraViewController.actualZoom
 		self.requestedPhotoSettings = requestedPhotoSettings
 		self.willCapturePhotoAnimation = willCapturePhotoAnimation
 		self.livePhotoCaptureHandler = livePhotoCaptureHandler
@@ -111,25 +120,71 @@ extension PhotoCaptureProcessor: AVCapturePhotoCaptureDelegate {
                     let imageRef = image?.cgImage?.cropping(to: rect)
                     
                     let croppedImage = UIImage(cgImage: imageRef!, scale: image!.scale, orientation: image!.imageOrientation)
-                    
-                    UIImageWriteToSavedPhotosAlbum(croppedImage, nil, nil, nil)
-                    
-                    /*let options = PHAssetResourceCreationOptions()
-                    let creationRequest = PHAssetCreationRequest.forAsset()
-                    options.uniformTypeIdentifier = self.requestedPhotoSettings.processedFileType.map { $0.rawValue }
-                    creationRequest.addResource(with: .photo, data: photoData, options: options)*/
-                    
-                    }, completionHandler: { _, error in
-                        if let error = error {
-                            print("Error occurered while saving photo to photo library: \(error)")
+                    if self.actialFile != nil && !self.actialFile!.url.path.starts(with: FileManager.default.urls(for: .documentDirectory, in: .userDomainMask)[0].path){
+                        if var data = croppedImage.jpegData(compressionQuality: 1.0){
+                            do {
+                                var newPath = self.actialFile!.url.deletingLastPathComponent().appendingPathComponent(self.actialFile!.url.deletingPathExtension().lastPathComponent, isDirectory: true)
+                                var i = 1
+                                try FileManager.default.createDirectory(at: newPath, withIntermediateDirectories: true, attributes: nil)
+                                while FileManager.default.fileExists(atPath: newPath.appendingPathComponent("\(i).\(self.actialFile!.url.pathExtension)", isDirectory: false).path){
+                                    i += 1
+                                }
+                                newPath = newPath.appendingPathComponent("\(i).\(self.actialFile!.url.pathExtension)")
+                                
+                                data = self.addZoomToExif(imageData: data, zoomValue: self.zoomValue, orientation: image!.imageOrientation)
+                                // writes the image data to disk
+                                try data.write(to: newPath)
+                            } catch {
+                                print("error saving file:", error)
+                            }
                         }
+                    } else {
+                        UIImageWriteToSavedPhotosAlbum(croppedImage, nil, nil, nil)
                         
-                        self.didFinish()
+                        /*let options = PHAssetResourceCreationOptions()
+                        let creationRequest = PHAssetCreationRequest.forAsset()
+                        options.uniformTypeIdentifier = self.requestedPhotoSettings.processedFileType.map { $0.rawValue }
+                        creationRequest.addResource(with: .photo, data: photoData, options: options)*/
                     }
-                )
+                }, completionHandler: { _, error in
+                    if let error = error {
+                        print("Error occurered while saving photo to photo library: \(error)")
+                    }
+                    self.didFinish()
+                })
             } else {
                 self.didFinish()
             }
         }
+    }
+    
+    func addZoomToExif(imageData: Data, zoomValue: CGFloat, orientation: UIImage.Orientation) -> Data{
+        let cgImgSource: CGImageSource = CGImageSourceCreateWithData(imageData as CFData, nil)!
+        let uti: CFString = CGImageSourceGetType(cgImgSource)!
+        let dataWithEXIF: NSMutableData = NSMutableData(data: imageData)
+        let destination: CGImageDestination = CGImageDestinationCreateWithData((dataWithEXIF as CFMutableData), uti, 1, nil)!
+        
+        
+        let imageProperties = CGImageSourceCopyPropertiesAtIndex(cgImgSource, 0, nil)! as NSDictionary
+        let mutable: NSMutableDictionary = imageProperties.mutableCopy() as! NSMutableDictionary
+        
+        print("Mutable before: \(mutable)")
+        
+        let EXIFDictionary: NSMutableDictionary = (mutable[kCGImagePropertyExifDictionary as String] as? NSMutableDictionary)!
+        
+        print("EXIF before: \(EXIFDictionary)")
+        
+        EXIFDictionary[kCGImagePropertyExifUserComment as String] = "zoomValue:\(zoomValue);"
+        
+        mutable[kCGImagePropertyExifDictionary as String] = EXIFDictionary
+        
+        CGImageDestinationAddImageFromSource(destination, cgImgSource, 0, (mutable as CFDictionary))
+        CGImageDestinationFinalize(destination)
+        
+        let testImage: CIImage = CIImage(data: dataWithEXIF as Data, options: nil)!
+        let newproperties: NSDictionary = testImage.properties as NSDictionary
+        
+        print("EXIF after: \(newproperties)")
+        return dataWithEXIF as Data
     }
 }

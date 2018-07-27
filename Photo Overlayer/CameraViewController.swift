@@ -355,7 +355,9 @@ class CameraViewController: UIViewController, UIDocumentPickerDelegate {
 	
 	@IBOutlet private weak var photoButton: UIButton!
 	@IBAction private func capturePhoto(_ photoButton: UIButton) {
-		
+        if currentFile != nil {
+            CameraViewController.filesQueue.append(currentFile!)
+        }
 		sessionQueue.async {
 			// Update the photo output's connection to match the video orientation of the video preview layer.
             if let photoOutputConnection = self.photoOutput.connection(with: .video) {
@@ -530,19 +532,57 @@ class CameraViewController: UIViewController, UIDocumentPickerDelegate {
     struct File {
         var name : String
         var url : URL
+        var zoom : CGFloat
+        var imageOrientation : CGImagePropertyOrientation
+        
+        init(Name: String, Url: URL) {
+            name = Name
+            url = Url
+            zoom = 1.0
+            imageOrientation = .up
+            var imageData : Data!
+            do{
+                imageData = try Data(contentsOf: url)
+                
+                let cgImgSource: CGImageSource = CGImageSourceCreateWithData(imageData as CFData, nil)!
+                let imageProperties = CGImageSourceCopyPropertiesAtIndex(cgImgSource, 0, nil)! as NSDictionary
+                let mutable: NSMutableDictionary = imageProperties.mutableCopy() as! NSMutableDictionary
+                
+                let EXIFDictionary: NSMutableDictionary = (mutable[kCGImagePropertyExifDictionary as String] as? NSMutableDictionary)!
+                if mutable[kCGImagePropertyOrientation as String] != nil{
+                    imageOrientation = CGImagePropertyOrientation.init(rawValue: mutable[kCGImagePropertyOrientation as String] as! UInt32)!
+                }
+                
+                if let userComment = EXIFDictionary["UserComment"] as? String{
+                    for value in userComment.split(separator: ";"){
+                        if value.contains("zoomValue:"){
+                            zoom = CGFloat(truncating: NumberFormatter().number(from: value.replacingOccurrences(of: "zoomValue:", with: ""))!)
+                        }
+                    }
+                }
+            } catch {
+                
+            }
+        }
     }
     
     let minimumZoom = CGFloat(1.0)
     let maximumZoom = CGFloat(5.0)
-    var actualZoom = CGFloat(1.0)
+    static var actualZoom = CGFloat(1.0)
     
     var files = [File]()
     var currentFile : File?
+    static var filesQueue = [File]()
     
     func fixAll(){
         imagePageControl.numberOfPages = files.count
         alphaSlider.isHidden = !(imagePageControl.numberOfPages > 0)
         clearButton.isEnabled = imagePageControl.numberOfPages > 0
+        
+        if videoDeviceInput.device.videoZoomFactor != CameraViewController.actualZoom{
+            changeZoom(to: CameraViewController.actualZoom)
+        }
+        
         if imagePageControl.numberOfPages < 1 {
             imageView.image = nil
             fileNameLabel.text = ""
@@ -578,6 +618,7 @@ class CameraViewController: UIViewController, UIDocumentPickerDelegate {
         //presentViewController:docPicker animated:YES completion:nil];
     }
     
+    
     func documentPicker(_ controller: UIDocumentPickerViewController,
                         didPickDocumentsAt urls: [URL])
     {
@@ -589,7 +630,8 @@ class CameraViewController: UIViewController, UIDocumentPickerDelegate {
             files.removeAll()
             imagePageControl.currentPage = 0
             for url in urls{
-                files.append(File(name: url.lastPathComponent, url: url))
+                
+                files.append(File(Name: url.lastPathComponent, Url: url))
             }
             if files.count > 1 {
                 files.sort(by: { (s1, s2) -> Bool in return s1.name.localizedStandardCompare(s2.name) == .orderedAscending })
@@ -637,8 +679,10 @@ class CameraViewController: UIViewController, UIDocumentPickerDelegate {
     func changeImage(toIndex: Int){
         if files[toIndex].url.startAccessingSecurityScopedResource() {
             let image = UIImage(contentsOfFile: files[toIndex].url.path)!
+            print(files[toIndex].imageOrientation.rawValue)
             imageView.image = UIImage(cgImage: image.cgImage!, scale: image.scale, orientation: self.orientationMap[self.currentOrientation]!)
             fileNameLabel.text = files[toIndex].name
+            CameraViewController.actualZoom = files[toIndex].zoom
             fixAll()
         } else {
             print("Can't access security scoped resourse")
@@ -664,17 +708,21 @@ class CameraViewController: UIViewController, UIDocumentPickerDelegate {
     }
     
     @IBAction func zoomChanged(_ sender: UIPinchGestureRecognizer) {
+        changeZoom(to: CameraViewController.actualZoom + sender.velocity/25)
+    }
+    
+    func changeZoom(to: CGFloat){
         let device = videoDeviceInput.device
-        actualZoom = min(min(max(actualZoom + sender.velocity/25, minimumZoom), maximumZoom), device.activeFormat.videoMaxZoomFactor)
+        CameraViewController.actualZoom = min(min(max(to, minimumZoom), maximumZoom), device.activeFormat.videoMaxZoomFactor)
         
-        if actualZoom.isNaN {
-            actualZoom = minimumZoom
+        if CameraViewController.actualZoom.isNaN {
+            CameraViewController.actualZoom = minimumZoom
         }
         
         do {
             try device.lockForConfiguration()
-            device.videoZoomFactor = actualZoom
-            zoomLabel.text = "\(round(actualZoom*100)/100)x"
+            device.videoZoomFactor = CameraViewController.actualZoom
+            zoomLabel.text = "\(round(CameraViewController.actualZoom*100)/100)x"
             device.unlockForConfiguration()
         } catch {
             print("Could not lock device for configuration: \(error)")
@@ -698,6 +746,17 @@ class CameraViewController: UIViewController, UIDocumentPickerDelegate {
         .landscapeLeft : .left,
         .landscapeRight : .right,
         .portraitUpsideDown : .down
+    ]
+    
+    var orientationMapCGImage: [CGImagePropertyOrientation : UIImage.Orientation] = [
+        .up : .up,
+        .upMirrored : .upMirrored,
+        .left : .left,
+        .leftMirrored : .leftMirrored,
+        .right : .right,
+        .rightMirrored : .rightMirrored,
+        .down : .down,
+        .downMirrored : .downMirrored
     ]
     
     func startGyros() {
@@ -727,6 +786,7 @@ class CameraViewController: UIViewController, UIDocumentPickerDelegate {
                                     
                                     if self.imageView.image != nil && self.imageView.image?.imageOrientation != self.orientationMap[self.currentOrientation] {
                                         let image = self.imageView.image!
+                                        
                                         self.imageView.image = UIImage(cgImage: image.cgImage!, scale: image.scale, orientation: self.orientationMap[self.currentOrientation]!)
                                     }
                                 }
