@@ -679,8 +679,7 @@ class CameraViewController: UIViewController, UIDocumentPickerDelegate {
     func changeImage(toIndex: Int){
         if files[toIndex].url.startAccessingSecurityScopedResource() {
             let image = UIImage(contentsOfFile: files[toIndex].url.path)!
-            print(files[toIndex].imageOrientation.rawValue)
-            imageView.image = UIImage(cgImage: image.cgImage!, scale: image.scale, orientation: self.orientationMap[self.currentOrientation]!)
+            imageView.image = UIImage(cgImage: image.cgImage!, scale: image.scale, orientation: self.orientationMapCGImage[files[toIndex].imageOrientation]!)
             fileNameLabel.text = files[toIndex].name
             CameraViewController.actualZoom = files[toIndex].zoom
             fixAll()
@@ -741,14 +740,14 @@ class CameraViewController: UIViewController, UIDocumentPickerDelegate {
     
     var currentOrientation : AVCaptureVideoOrientation = .portrait
     
-    var orientationMap: [AVCaptureVideoOrientation : UIImage.Orientation] = [
+    let orientationMap: [AVCaptureVideoOrientation : UIImage.Orientation] = [
         .portrait : .up,
         .landscapeLeft : .left,
         .landscapeRight : .right,
         .portraitUpsideDown : .down
     ]
     
-    var orientationMapCGImage: [CGImagePropertyOrientation : UIImage.Orientation] = [
+    let orientationMapCGImage: [CGImagePropertyOrientation : UIImage.Orientation] = [
         .up : .up,
         .upMirrored : .upMirrored,
         .left : .left,
@@ -772,22 +771,26 @@ class CameraViewController: UIViewController, UIDocumentPickerDelegate {
                                     let x = data.attitude.pitch
                                     let y = data.attitude.roll
                                     
+                                    var rotation : CGFloat = 0
+                                    
                                     if x > 0.75 {
                                         self.currentOrientation = .portrait
                                     } else if x < 0.75 && x > -0.75 {
                                         if y > 0.75 {
                                             self.currentOrientation = .landscapeLeft
+                                            rotation = -CGFloat(Double.pi/2)
                                         } else if y < -0.75 {
                                             self.currentOrientation = .landscapeRight
+                                            rotation = CGFloat(Double.pi/2)
                                         }
                                     } else if x < -0.75 {
                                         self.currentOrientation = .portraitUpsideDown
+                                        rotation = CGFloat(Double.pi)
                                     }
                                     
-                                    if self.imageView.image != nil && self.imageView.image?.imageOrientation != self.orientationMap[self.currentOrientation] {
+                                    if self.imageView.image != nil && self.imageView.image?.imageOrientation != self.currentFile!.imageOrientation.rotatedBy(angle: rotation)! {
                                         let image = self.imageView.image!
-                                        
-                                        self.imageView.image = UIImage(cgImage: image.cgImage!, scale: image.scale, orientation: self.orientationMap[self.currentOrientation]!)
+                                        self.imageView.image = UIImage(cgImage: image.cgImage!, scale: image.scale, orientation: self.currentFile!.imageOrientation.rotatedBy(angle: rotation)!)
                                     }
                                 }
             })
@@ -830,6 +833,62 @@ extension AVCaptureDevice.DiscoverySession {
         }
         
         return uniqueDevicePositions.count
+    }
+}
+
+extension CGImagePropertyOrientation {
+    func rotatedBy(angle: CGFloat) -> UIImage.Orientation! {
+        var result = self
+        if angle == CGFloat(Double.pi/2){
+            switch self{
+            case .up: result = .right
+            case .upMirrored: result = .rightMirrored
+            case .down: result = .left
+            case .downMirrored: result = .leftMirrored
+            case .left: result = .up
+            case .leftMirrored: result = .upMirrored
+            case .right: result = .down
+            case .rightMirrored: result = .downMirrored
+            }
+        } else if angle == -CGFloat(Double.pi/2){
+            switch self{
+            case .up: result = .left
+            case .upMirrored: result = .leftMirrored
+            case .down: result = .rightMirrored
+            case .downMirrored: result = .rightMirrored
+            case .left: result = .down
+            case .leftMirrored: result = .downMirrored
+            case .right: result = .up
+            case .rightMirrored: result = .upMirrored
+            }
+        } else if angle == CGFloat(Double.pi){
+            switch self{
+            case .up: result = .down
+            case .upMirrored: result = .downMirrored
+            case .down: result = .up
+            case .downMirrored: result = .upMirrored
+            case .left: result = .right
+            case .leftMirrored: result = .rightMirrored
+            case .right: result = .left
+            case .rightMirrored: result = .leftMirrored
+            }
+        }
+        return UIImage.Orientation(result)
+    }
+}
+
+extension UIImage.Orientation {
+    init(_ cgOrientation: CGImagePropertyOrientation) {
+        switch cgOrientation {
+        case .up: self = .up
+        case .upMirrored: self = .upMirrored
+        case .down: self = .down
+        case .downMirrored: self = .downMirrored
+        case .left: self = .left
+        case .leftMirrored: self = .leftMirrored
+        case .right: self = .right
+        case .rightMirrored: self = .rightMirrored
+        }
     }
 }
 
