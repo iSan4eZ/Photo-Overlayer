@@ -168,11 +168,7 @@ extension PhotoCaptureProcessor: AVCapturePhotoCaptureDelegate {
         let imageProperties = CGImageSourceCopyPropertiesAtIndex(cgImgSource, 0, nil)! as NSDictionary
         let mutable: NSMutableDictionary = imageProperties.mutableCopy() as! NSMutableDictionary
         
-        print("Mutable before: \(mutable)")
-        
         let EXIFDictionary: NSMutableDictionary = (mutable[kCGImagePropertyExifDictionary as String] as? NSMutableDictionary)!
-        
-        print("EXIF before: \(EXIFDictionary)")
         
         EXIFDictionary[kCGImagePropertyExifUserComment as String] = "zoomValue:\(zoomValue);"
         

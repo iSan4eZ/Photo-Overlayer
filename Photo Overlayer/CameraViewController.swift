@@ -356,7 +356,7 @@ class CameraViewController: UIViewController, UIDocumentPickerDelegate {
 	@IBOutlet private weak var photoButton: UIButton!
 	@IBAction private func capturePhoto(_ photoButton: UIButton) {
         if currentFile != nil {
-            CameraViewController.filesQueue.append(currentFile!)
+            CameraViewController.filesQueue.append(alphaSlider.value > 0 ? currentFile! : File(currentFile!.url.deletingLastPathComponent().appendingPathComponent("Another.\(currentFile!.url.pathExtension)")))
         }
 		sessionQueue.async {
 			// Update the photo output's connection to match the video orientation of the video preview layer.
@@ -535,8 +535,8 @@ class CameraViewController: UIViewController, UIDocumentPickerDelegate {
         var zoom : CGFloat
         var imageOrientation : CGImagePropertyOrientation
         
-        init(Name: String, Url: URL) {
-            name = Name
+        init(_ Url: URL) {
+            name = Url.lastPathComponent
             url = Url
             zoom = 1.0
             imageOrientation = .up
@@ -631,7 +631,7 @@ class CameraViewController: UIViewController, UIDocumentPickerDelegate {
             imagePageControl.currentPage = 0
             for url in urls{
                 
-                files.append(File(Name: url.lastPathComponent, Url: url))
+                files.append(File(url))
             }
             if files.count > 1 {
                 files.sort(by: { (s1, s2) -> Bool in return s1.name.localizedStandardCompare(s2.name) == .orderedAscending })
