@@ -177,10 +177,6 @@ extension PhotoCaptureProcessor: AVCapturePhotoCaptureDelegate {
         CGImageDestinationAddImageFromSource(destination, cgImgSource, 0, (mutable as CFDictionary))
         CGImageDestinationFinalize(destination)
         
-        let testImage: CIImage = CIImage(data: dataWithEXIF as Data, options: nil)!
-        let newproperties: NSDictionary = testImage.properties as NSDictionary
-        
-        print("EXIF after: \(newproperties)")
         return dataWithEXIF as Data
     }
 }
