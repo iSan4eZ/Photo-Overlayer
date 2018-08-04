@@ -763,6 +763,7 @@ class CameraViewController: UIViewController, UIDocumentPickerDelegate {
     var timer : Timer?
     
     var currentOrientation : AVCaptureVideoOrientation = .portrait
+    var rotation : CGFloat = 0
     
     let orientationMap: [AVCaptureVideoOrientation : UIImage.Orientation] = [
         .portrait : .up,
@@ -795,26 +796,26 @@ class CameraViewController: UIViewController, UIDocumentPickerDelegate {
                                     let x = data.attitude.pitch
                                     let y = data.attitude.roll
                                     
-                                    var rotation : CGFloat = 0
                                     
                                     if x > 0.75 {
                                         self.currentOrientation = .portrait
+                                        self.rotation = 0
                                     } else if x < 0.75 && x > -0.75 {
                                         if y > 0.75 {
                                             self.currentOrientation = .landscapeLeft
-                                            rotation = -CGFloat(Double.pi/2)
+                                            self.rotation = -CGFloat(Double.pi/2)
                                         } else if y < -0.75 {
                                             self.currentOrientation = .landscapeRight
-                                            rotation = CGFloat(Double.pi/2)
+                                            self.rotation = CGFloat(Double.pi/2)
                                         }
                                     } else if x < -0.75 {
                                         self.currentOrientation = .portraitUpsideDown
-                                        rotation = CGFloat(Double.pi)
+                                        self.rotation = CGFloat(Double.pi)
                                     }
                                     
-                                    if self.imageView.image != nil && self.imageView.image?.imageOrientation != self.currentFile!.imageOrientation.rotatedBy(angle: rotation)! {
+                                    if self.imageView.image != nil && self.imageView.image?.imageOrientation != self.currentFile!.imageOrientation.rotatedBy(angle: self.rotation)! {
                                         let image = self.imageView.image!
-                                        self.imageView.image = UIImage(cgImage: image.cgImage!, scale: image.scale, orientation: self.currentFile!.imageOrientation.rotatedBy(angle: rotation)!)
+                                        self.imageView.image = UIImage(cgImage: image.cgImage!, scale: image.scale, orientation: self.currentFile!.imageOrientation.rotatedBy(angle: self.rotation)!)
                                     }
                                 }
             })
