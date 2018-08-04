@@ -409,6 +409,7 @@ class CameraViewController: UIViewController, UIDocumentPickerDelegate {
 			self.inProgressPhotoCaptureDelegates[photoCaptureProcessor.requestedPhotoSettings.uniqueID] = photoCaptureProcessor
 			self.photoOutput.capturePhoto(with: photoSettings, delegate: photoCaptureProcessor)
 		}
+        self.fileNameLabel.textColor = UIColor.green
 	}
 	
 	// MARK: Recording Movies
@@ -609,6 +610,11 @@ class CameraViewController: UIViewController, UIDocumentPickerDelegate {
         } else {
             currentFile = files[imagePageControl.currentPage]
         }
+        
+        if currentFile != nil{
+            fileNameLabel.textColor = FileManager.default.fileExists(atPath: currentFile!.url.deletingLastPathComponent().appendingPathComponent(currentFile!.url.deletingPathExtension().lastPathComponent, isDirectory: true).path) ? UIColor.green : UIColor.yellow
+        }
+        
         if alphaSlider.value < 1{
             hideStatusBar = true
             setNeedsStatusBarAppearanceUpdate()
