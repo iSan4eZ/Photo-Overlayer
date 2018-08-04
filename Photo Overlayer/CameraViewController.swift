@@ -355,8 +355,11 @@ class CameraViewController: UIViewController, UIDocumentPickerDelegate {
 	
 	@IBOutlet private weak var photoButton: UIButton!
 	@IBAction private func capturePhoto(_ photoButton: UIButton) {
-        if currentFile != nil {
-            CameraViewController.filesQueue.append(alphaSlider.value > 0 ? currentFile! : File(currentFile!.url.deletingLastPathComponent().appendingPathComponent("Another.\(currentFile!.url.pathExtension)")))
+        FOV = self.videoDeviceInput.device.activeFormat.videoFieldOfView;
+        if alphaSlider.value > 0 || currentFile == nil {
+            CameraViewController.filesQueue.append(queueItem(currentFile, actualZoom, FOV))
+        } else {
+            CameraViewController.filesQueue.append(queueItem(File(currentFile!.url.deletingLastPathComponent().appendingPathComponent("Another.\(currentFile!.url.pathExtension)")), actualZoom, FOV))
         }
 		sessionQueue.async {
 			// Update the photo output's connection to match the video orientation of the video preview layer.
@@ -568,23 +571,37 @@ class CameraViewController: UIViewController, UIDocumentPickerDelegate {
     
     let minimumZoom = CGFloat(1.0)
     let maximumZoom = CGFloat(5.0)
-    static var actualZoom = CGFloat(1.0)
+    var actualZoom = CGFloat(1.0)
+    var FOV = Float(1.0)
     
     var files = [File]()
     var currentFile : File?
-    static var filesQueue = [File]()
+    static var filesQueue = [queueItem]()
+    
+    struct queueItem {
+        var file : File?
+        var zoom : CGFloat
+        var fov : Float
+        
+        init(_ queueFile: File?, _ Zoom: CGFloat, _ Fov: Float) {
+            self.file = queueFile
+            self.zoom = Zoom
+            self.fov = Fov
+        }
+    }
     
     func fixAll(){
         imagePageControl.numberOfPages = files.count
         alphaSlider.isHidden = !(imagePageControl.numberOfPages > 0)
         clearButton.isEnabled = imagePageControl.numberOfPages > 0
         
-        if videoDeviceInput.device.videoZoomFactor != CameraViewController.actualZoom{
-            changeZoom(to: CameraViewController.actualZoom)
+        if videoDeviceInput.device.videoZoomFactor != actualZoom{
+            changeZoom(to: actualZoom)
         }
         
         if imagePageControl.numberOfPages < 1 {
             imageView.image = nil
+            currentFile = nil
             fileNameLabel.text = ""
             if !session.isRunning {
                 session.startRunning()
@@ -678,10 +695,11 @@ class CameraViewController: UIViewController, UIDocumentPickerDelegate {
     
     func changeImage(toIndex: Int){
         if files[toIndex].url.startAccessingSecurityScopedResource() {
-            let image = UIImage(contentsOfFile: files[toIndex].url.path)!
-            imageView.image = UIImage(cgImage: image.cgImage!, scale: image.scale, orientation: self.orientationMapCGImage[files[toIndex].imageOrientation]!)
-            fileNameLabel.text = files[toIndex].name
-            CameraViewController.actualZoom = files[toIndex].zoom
+            if let image = UIImage(contentsOfFile: files[toIndex].url.path){
+                imageView.image = UIImage(cgImage: image.cgImage!, scale: image.scale, orientation: self.orientationMapCGImage[files[toIndex].imageOrientation]!)
+                fileNameLabel.text = files[toIndex].name
+                actualZoom = files[toIndex].zoom
+            }
             fixAll()
         } else {
             print("Can't access security scoped resourse")
@@ -707,21 +725,21 @@ class CameraViewController: UIViewController, UIDocumentPickerDelegate {
     }
     
     @IBAction func zoomChanged(_ sender: UIPinchGestureRecognizer) {
-        changeZoom(to: CameraViewController.actualZoom + sender.velocity/25)
+        changeZoom(to: actualZoom + sender.velocity/25)
     }
     
     func changeZoom(to: CGFloat){
         let device = videoDeviceInput.device
-        CameraViewController.actualZoom = min(min(max(to, minimumZoom), maximumZoom), device.activeFormat.videoMaxZoomFactor)
+        actualZoom = min(min(max(to, minimumZoom), maximumZoom), device.activeFormat.videoMaxZoomFactor)
         
-        if CameraViewController.actualZoom.isNaN {
-            CameraViewController.actualZoom = minimumZoom
+        if actualZoom.isNaN {
+            actualZoom = minimumZoom
         }
         
         do {
             try device.lockForConfiguration()
-            device.videoZoomFactor = CameraViewController.actualZoom
-            zoomLabel.text = "\(round(CameraViewController.actualZoom*100)/100)x"
+            device.videoZoomFactor = actualZoom
+            zoomLabel.text = "\(round(actualZoom*100)/100)x"
             device.unlockForConfiguration()
         } catch {
             print("Could not lock device for configuration: \(error)")

@@ -21,19 +21,24 @@ class PhotoCaptureProcessor: NSObject {
 	
 	private var livePhotoCompanionMovieURL: URL?
     
-    var actialFile : CameraViewController.File?
+    var actualQueueItem : CameraViewController.queueItem?
     
-    var zoomValue = CGFloat()
+    var actualFile : CameraViewController.File?
+    
+    var zoomValue = CGFloat(1.0)
+    var fovValue = Float(1.0)
 
 	init(with requestedPhotoSettings: AVCapturePhotoSettings,
 	     willCapturePhotoAnimation: @escaping () -> Void,
 	     livePhotoCaptureHandler: @escaping (Bool) -> Void,
 	     completionHandler: @escaping (PhotoCaptureProcessor) -> Void) {
         if CameraViewController.filesQueue.count > 0{
-            actialFile = CameraViewController.filesQueue.first!
+            actualQueueItem = CameraViewController.filesQueue.first!
             CameraViewController.filesQueue.remove(at: 0)
+            actualFile = actualQueueItem!.file
+            zoomValue = actualQueueItem!.zoom
+            fovValue = actualQueueItem!.fov
         }
-        zoomValue = CameraViewController.actualZoom
 		self.requestedPhotoSettings = requestedPhotoSettings
 		self.willCapturePhotoAnimation = willCapturePhotoAnimation
 		self.livePhotoCaptureHandler = livePhotoCaptureHandler
@@ -120,31 +125,32 @@ extension PhotoCaptureProcessor: AVCapturePhotoCaptureDelegate {
                     let imageRef = image?.cgImage?.cropping(to: rect)
                     
                     let croppedImage = UIImage(cgImage: imageRef!, scale: image!.scale, orientation: image!.imageOrientation)
-                    if self.actialFile != nil && !self.actialFile!.url.path.starts(with: FileManager.default.urls(for: .documentDirectory, in: .userDomainMask)[0].path){
-                        if var data = croppedImage.jpegData(compressionQuality: 1.0){
-                            do {
-                                var newPath = self.actialFile!.url.deletingLastPathComponent().appendingPathComponent(self.actialFile!.url.deletingPathExtension().lastPathComponent, isDirectory: true)
-                                var i = 1
-                                try FileManager.default.createDirectory(at: newPath, withIntermediateDirectories: true, attributes: nil)
-                                while FileManager.default.fileExists(atPath: newPath.appendingPathComponent("\(i).\(self.actialFile!.url.pathExtension)", isDirectory: false).path){
-                                    i += 1
+                    if var data = croppedImage.jpegData(compressionQuality: 1.0){
+                        data = self.addDataToExif(imageData: data, zoomValue: self.zoomValue, fov: self.fovValue, orientation: image!.imageOrientation)
+                        if self.actualFile != nil && !self.actualFile!.url.path.starts(with: FileManager.default.urls(for: .documentDirectory, in: .userDomainMask)[0].path){
+                                do {
+                                    var newPath = self.actualFile!.url.deletingLastPathComponent().appendingPathComponent(self.actualFile!.url.deletingPathExtension().lastPathComponent, isDirectory: true)
+                                    var i = 1
+                                    try FileManager.default.createDirectory(at: newPath, withIntermediateDirectories: true, attributes: nil)
+                                    while FileManager.default.fileExists(atPath: newPath.appendingPathComponent("\(i).\(self.actualFile!.url.pathExtension)", isDirectory: false).path){
+                                        i += 1
+                                    }
+                                    newPath = newPath.appendingPathComponent("\(i).\(self.actualFile!.url.pathExtension)")
+                                    
+                                    // writes the image data to disk
+                                    try data.write(to: newPath)
+                                } catch {
+                                    print("error saving file:", error)
                                 }
-                                newPath = newPath.appendingPathComponent("\(i).\(self.actialFile!.url.pathExtension)")
-                                
-                                data = self.addZoomToExif(imageData: data, zoomValue: self.zoomValue, orientation: image!.imageOrientation)
-                                // writes the image data to disk
-                                try data.write(to: newPath)
-                            } catch {
-                                print("error saving file:", error)
-                            }
+                            
+                        } else {
+                            //UIImageWriteToSavedPhotosAlbum(croppedImage, nil, nil, nil)
+                            
+                            let options = PHAssetResourceCreationOptions()
+                            let creationRequest = PHAssetCreationRequest.forAsset()
+                            options.uniformTypeIdentifier = self.requestedPhotoSettings.processedFileType.map { $0.rawValue }
+                            creationRequest.addResource(with: .photo, data: data, options: options)
                         }
-                    } else {
-                        UIImageWriteToSavedPhotosAlbum(croppedImage, nil, nil, nil)
-                        
-                        /*let options = PHAssetResourceCreationOptions()
-                        let creationRequest = PHAssetCreationRequest.forAsset()
-                        options.uniformTypeIdentifier = self.requestedPhotoSettings.processedFileType.map { $0.rawValue }
-                        creationRequest.addResource(with: .photo, data: photoData, options: options)*/
                     }
                 }, completionHandler: { _, error in
                     if let error = error {
@@ -158,7 +164,7 @@ extension PhotoCaptureProcessor: AVCapturePhotoCaptureDelegate {
         }
     }
     
-    func addZoomToExif(imageData: Data, zoomValue: CGFloat, orientation: UIImage.Orientation) -> Data{
+    func addDataToExif(imageData: Data, zoomValue: CGFloat, fov: Float, orientation: UIImage.Orientation) -> Data{
         let cgImgSource: CGImageSource = CGImageSourceCreateWithData(imageData as CFData, nil)!
         let uti: CFString = CGImageSourceGetType(cgImgSource)!
         let dataWithEXIF: NSMutableData = NSMutableData(data: imageData)
@@ -170,7 +176,7 @@ extension PhotoCaptureProcessor: AVCapturePhotoCaptureDelegate {
         
         let EXIFDictionary: NSMutableDictionary = (mutable[kCGImagePropertyExifDictionary as String] as? NSMutableDictionary)!
         
-        EXIFDictionary[kCGImagePropertyExifUserComment as String] = "zoomValue:\(zoomValue);"
+        EXIFDictionary[kCGImagePropertyExifUserComment as String] = "zoomValue:\(zoomValue);fov:\(fov)"
         
         mutable[kCGImagePropertyExifDictionary as String] = EXIFDictionary
         
