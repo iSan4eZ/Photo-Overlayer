@@ -27,6 +27,8 @@ class PhotoCaptureProcessor: NSObject {
     
     var zoomValue = CGFloat(1.0)
     var fovValue = Float(1.0)
+    
+    var originalExif : NSMutableDictionary!
 
 	init(with requestedPhotoSettings: AVCapturePhotoSettings,
 	     willCapturePhotoAnimation: @escaping () -> Void,
@@ -113,6 +115,7 @@ extension PhotoCaptureProcessor: AVCapturePhotoCaptureDelegate {
             if status == .authorized {
                 PHPhotoLibrary.shared().performChanges({
                     
+                    self.originalExif = self.getExif(imageData: photoData)
                     let image = UIImage(data:photoData,scale:1.0)
                     
                     let dX: CGFloat = 0
@@ -126,7 +129,7 @@ extension PhotoCaptureProcessor: AVCapturePhotoCaptureDelegate {
                     
                     let croppedImage = UIImage(cgImage: imageRef!, scale: image!.scale, orientation: image!.imageOrientation)
                     if var data = croppedImage.jpegData(compressionQuality: 1.0){
-                        data = self.addDataToExif(imageData: data, zoomValue: self.zoomValue, fov: self.fovValue, orientation: image!.imageOrientation)
+                        data = self.addDataToExif(imageData: data, zoomValue: self.zoomValue, fov: self.fovValue)
                         if self.actualFile != nil && !self.actualFile!.url.path.starts(with: FileManager.default.urls(for: .documentDirectory, in: .userDomainMask)[0].path){
                                 do {
                                     var newPath = self.actualFile!.url.deletingLastPathComponent().appendingPathComponent(self.actualFile!.url.deletingPathExtension().lastPathComponent, isDirectory: true)
@@ -164,19 +167,27 @@ extension PhotoCaptureProcessor: AVCapturePhotoCaptureDelegate {
         }
     }
     
-    func addDataToExif(imageData: Data, zoomValue: CGFloat, fov: Float, orientation: UIImage.Orientation) -> Data{
+    func getExif(imageData : Data) -> NSMutableDictionary{
+        let cgImgSource: CGImageSource = CGImageSourceCreateWithData(imageData as CFData, nil)!
+        
+        let imageProperties = CGImageSourceCopyPropertiesAtIndex(cgImgSource, 0, nil)! as NSDictionary
+        let mutable: NSMutableDictionary = imageProperties.mutableCopy() as! NSMutableDictionary
+        
+        return (mutable[kCGImagePropertyExifDictionary as String] as? NSMutableDictionary)!
+    }
+    
+    func addDataToExif(imageData: Data, zoomValue: CGFloat, fov: Float) -> Data{
         let cgImgSource: CGImageSource = CGImageSourceCreateWithData(imageData as CFData, nil)!
         let uti: CFString = CGImageSourceGetType(cgImgSource)!
         let dataWithEXIF: NSMutableData = NSMutableData(data: imageData)
         let destination: CGImageDestination = CGImageDestinationCreateWithData((dataWithEXIF as CFMutableData), uti, 1, nil)!
         
-        
         let imageProperties = CGImageSourceCopyPropertiesAtIndex(cgImgSource, 0, nil)! as NSDictionary
         let mutable: NSMutableDictionary = imageProperties.mutableCopy() as! NSMutableDictionary
         
-        let EXIFDictionary: NSMutableDictionary = (mutable[kCGImagePropertyExifDictionary as String] as? NSMutableDictionary)!
+        let EXIFDictionary = self.originalExif
         
-        EXIFDictionary[kCGImagePropertyExifUserComment as String] = "zoomValue:\(zoomValue);fov:\(fov)"
+        EXIFDictionary![kCGImagePropertyExifUserComment as String] = "zoomValue:\(zoomValue);fov:\(fov)"
         
         mutable[kCGImagePropertyExifDictionary as String] = EXIFDictionary
         
