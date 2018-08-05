@@ -29,6 +29,7 @@ class PhotoCaptureProcessor: NSObject {
     var fovValue = Float(1.0)
     
     var originalExif : NSMutableDictionary!
+    var gpsMetadata : NSMutableDictionary?
 
 	init(with requestedPhotoSettings: AVCapturePhotoSettings,
 	     willCapturePhotoAnimation: @escaping () -> Void,
@@ -40,6 +41,7 @@ class PhotoCaptureProcessor: NSObject {
             actualFile = actualQueueItem!.file
             zoomValue = actualQueueItem!.zoom
             fovValue = actualQueueItem!.fov
+            gpsMetadata = actualQueueItem!.gps
         }
 		self.requestedPhotoSettings = requestedPhotoSettings
 		self.willCapturePhotoAnimation = willCapturePhotoAnimation
@@ -129,7 +131,7 @@ extension PhotoCaptureProcessor: AVCapturePhotoCaptureDelegate {
                     
                     let croppedImage = UIImage(cgImage: imageRef!, scale: image!.scale, orientation: image!.imageOrientation)
                     if var data = croppedImage.jpegData(compressionQuality: 1.0){
-                        data = self.addDataToExif(imageData: data, zoomValue: self.zoomValue, fov: self.fovValue)
+                        data = self.addDataToExif(imageData: data, zoomValue: self.zoomValue, fov: self.fovValue, location: self.gpsMetadata)
                         if self.actualFile != nil && !self.actualFile!.url.path.starts(with: FileManager.default.urls(for: .documentDirectory, in: .userDomainMask)[0].path){
                                 do {
                                     var newPath = self.actualFile!.url.deletingLastPathComponent().appendingPathComponent(self.actualFile!.url.deletingPathExtension().lastPathComponent, isDirectory: true)
@@ -176,7 +178,7 @@ extension PhotoCaptureProcessor: AVCapturePhotoCaptureDelegate {
         return (mutable[kCGImagePropertyExifDictionary as String] as? NSMutableDictionary)!
     }
     
-    func addDataToExif(imageData: Data, zoomValue: CGFloat, fov: Float) -> Data{
+    func addDataToExif(imageData: Data, zoomValue: CGFloat, fov: Float, location: NSMutableDictionary?) -> Data{
         let cgImgSource: CGImageSource = CGImageSourceCreateWithData(imageData as CFData, nil)!
         let uti: CFString = CGImageSourceGetType(cgImgSource)!
         let dataWithEXIF: NSMutableData = NSMutableData(data: imageData)
@@ -188,6 +190,7 @@ extension PhotoCaptureProcessor: AVCapturePhotoCaptureDelegate {
         let EXIFDictionary = self.originalExif
         
         EXIFDictionary![kCGImagePropertyExifUserComment as String] = "zoomValue:\(zoomValue);fov:\(fov)"
+        mutable[kCGImagePropertyGPSDictionary] = location
         
         mutable[kCGImagePropertyExifDictionary as String] = EXIFDictionary
         

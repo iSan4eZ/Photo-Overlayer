@@ -19,6 +19,9 @@ class CameraViewController: UIViewController, UIDocumentPickerDelegate {
     var hideStatusBar = false
     var statusBarStyle = UIStatusBarStyle.lightContent
     
+    var locationManager = CLLocationManager()
+    var locationManagerStatus : CLAuthorizationStatus = .authorizedWhenInUse
+    
     override var prefersStatusBarHidden: Bool{
         return hideStatusBar
     }
@@ -69,6 +72,20 @@ class CameraViewController: UIViewController, UIDocumentPickerDelegate {
 				// The user has previously denied access.
 				setupResult = .notAuthorized
 		}
+        
+        // Request authorization for location manager
+        switch CLLocationManager.authorizationStatus() {
+        case .authorizedWhenInUse:
+            break
+            
+        case .notDetermined:
+            locationManager.requestWhenInUseAuthorization()
+            locationManagerStatus = CLLocationManager.authorizationStatus()
+            
+        default:
+            locationManagerStatus = .denied
+        }
+
 		
 		/*
 			Setup the capture session.
@@ -182,7 +199,7 @@ class CameraViewController: UIViewController, UIDocumentPickerDelegate {
 	var videoDeviceInput: AVCaptureDeviceInput!
 	
 	@IBOutlet private weak var previewView: PreviewView!
-	
+    
 	// Call this on the session queue.
 	private func configureSession() {
 		if setupResult != .success {
@@ -273,6 +290,58 @@ class CameraViewController: UIViewController, UIDocumentPickerDelegate {
 		
 		session.commitConfiguration()
 	}
+    
+    // create GPS metadata properties
+    func createLocationMetadata() -> NSMutableDictionary? {
+        
+        guard CLLocationManager.authorizationStatus() == .authorizedWhenInUse else {return nil}
+        
+        if let location = locationManager.location {
+            let gpsDictionary = NSMutableDictionary()
+            var latitude = location.coordinate.latitude
+            var longitude = location.coordinate.longitude
+            var altitude = location.altitude
+            var latitudeRef = "N"
+            var longitudeRef = "E"
+            var altitudeRef = 0
+            
+            if latitude < 0.0 {
+                latitude = -latitude
+                latitudeRef = "S"
+            }
+            
+            if longitude < 0.0 {
+                longitude = -longitude
+                longitudeRef = "W"
+            }
+            
+            if altitude < 0.0 {
+                altitude = -altitude
+                altitudeRef = 1
+            }
+            
+            let formatter = DateFormatter()
+            formatter.dateFormat = "yyyy:MM:dd"
+            gpsDictionary[kCGImagePropertyGPSDateStamp] = formatter.string(from:location.timestamp)
+            formatter.dateFormat = "HH:mm:ss"
+            gpsDictionary[kCGImagePropertyGPSTimeStamp] = formatter.string(from:location.timestamp)
+            gpsDictionary[kCGImagePropertyGPSLatitudeRef] = latitudeRef
+            gpsDictionary[kCGImagePropertyGPSLatitude] = latitude
+            gpsDictionary[kCGImagePropertyGPSLongitudeRef] = longitudeRef
+            gpsDictionary[kCGImagePropertyGPSLongitude] = longitude
+            gpsDictionary[kCGImagePropertyGPSDOP] = location.horizontalAccuracy
+            gpsDictionary[kCGImagePropertyGPSAltitudeRef] = altitudeRef
+            gpsDictionary[kCGImagePropertyGPSAltitude] = altitude
+            
+            if let heading = locationManager.heading {
+                gpsDictionary[kCGImagePropertyGPSImgDirectionRef] = "T"
+                gpsDictionary[kCGImagePropertyGPSImgDirection] = heading.trueHeading
+            }
+            
+            return gpsDictionary;
+        }
+        return nil
+    }
 	
 	@IBAction private func resumeInterruptedSession(_ resumeButton: UIButton) {
 		sessionQueue.async {
@@ -355,13 +424,13 @@ class CameraViewController: UIViewController, UIDocumentPickerDelegate {
 	
 	@IBOutlet private weak var photoButton: UIButton!
 	@IBAction private func capturePhoto(_ photoButton: UIButton) {
-        FOV = self.videoDeviceInput.device.activeFormat.videoFieldOfView;
-        if alphaSlider.value > 0 || currentFile == nil {
-            CameraViewController.filesQueue.append(queueItem(currentFile, actualZoom, FOV))
-        } else {
-            CameraViewController.filesQueue.append(queueItem(File(currentFile!.url.deletingLastPathComponent().appendingPathComponent("Another.\(currentFile!.url.pathExtension)")), actualZoom, FOV))
-        }
-		sessionQueue.async {
+        sessionQueue.async {
+            self.FOV = self.videoDeviceInput.device.activeFormat.videoFieldOfView;
+            if self.alphaSlider.value > 0 || self.currentFile == nil {
+                CameraViewController.filesQueue.append(queueItem(self.currentFile, self.actualZoom, self.FOV, self.createLocationMetadata()))
+            } else {
+                CameraViewController.filesQueue.append(queueItem(File(self.currentFile!.url.deletingLastPathComponent().appendingPathComponent("Another.\(self.currentFile!.url.pathExtension)")), self.actualZoom, self.FOV, self.createLocationMetadata()))
+            }
 			// Update the photo output's connection to match the video orientation of the video preview layer.
             if let photoOutputConnection = self.photoOutput.connection(with: .video) {
                 photoOutputConnection.videoOrientation = self.currentOrientation
@@ -583,11 +652,13 @@ class CameraViewController: UIViewController, UIDocumentPickerDelegate {
         var file : File?
         var zoom : CGFloat
         var fov : Float
+        var gps : NSMutableDictionary?
         
-        init(_ queueFile: File?, _ Zoom: CGFloat, _ Fov: Float) {
+        init(_ queueFile: File?, _ Zoom: CGFloat, _ Fov: Float, _ Gps: NSMutableDictionary?) {
             self.file = queueFile
             self.zoom = Zoom
             self.fov = Fov
+            self.gps = Gps
         }
     }
     
