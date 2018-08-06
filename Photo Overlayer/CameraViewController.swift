@@ -623,15 +623,16 @@ class CameraViewController: UIViewController, UIDocumentPickerDelegate {
                 let imageProperties = CGImageSourceCopyPropertiesAtIndex(cgImgSource, 0, nil)! as NSDictionary
                 let mutable: NSMutableDictionary = imageProperties.mutableCopy() as! NSMutableDictionary
                 
-                let EXIFDictionary: NSMutableDictionary = (mutable[kCGImagePropertyExifDictionary as String] as? NSMutableDictionary)!
-                if mutable[kCGImagePropertyOrientation as String] != nil{
-                    imageOrientation = CGImagePropertyOrientation.init(rawValue: mutable[kCGImagePropertyOrientation as String] as! UInt32)!
-                }
-                
-                if let userComment = EXIFDictionary["UserComment"] as? String{
-                    for value in userComment.split(separator: ";"){
-                        if value.contains("zoomValue:"){
-                            zoom = CGFloat(truncating: NumberFormatter().number(from: value.replacingOccurrences(of: "zoomValue:", with: ""))!)
+                if let EXIFDictionary = (imageProperties[kCGImagePropertyExifDictionary as String] as? NSDictionary){
+                    if mutable[kCGImagePropertyOrientation as String] != nil{
+                        imageOrientation = CGImagePropertyOrientation.init(rawValue: mutable[kCGImagePropertyOrientation as String] as! UInt32)!
+                    }
+                    
+                    if let userComment = EXIFDictionary["UserComment"] as? String{
+                        for value in userComment.split(separator: ";"){
+                            if value.contains("zoomValue:"){
+                                zoom = CGFloat(truncating: NumberFormatter().number(from: value.replacingOccurrences(of: "zoomValue:", with: ""))!)
+                            }
                         }
                     }
                 }
