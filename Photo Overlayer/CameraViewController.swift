@@ -751,9 +751,9 @@ class CameraViewController: UIViewController, UIDocumentPickerDelegate {
             if !session.isRunning {
                 session.startRunning()
             }
-//            if !imageView.transform.isIdentity{
-//                imageView.transform = CGAffineTransform.identity
-//            }
+            if !imageView.transform.isIdentity && AppDelegate.beta {
+                imageView.transform = CGAffineTransform.identity
+            }
         } else {
             session.stopRunning()
         }
@@ -809,19 +809,19 @@ class CameraViewController: UIViewController, UIDocumentPickerDelegate {
     @IBAction func zoomChanged(_ sender: UIPinchGestureRecognizer) {
         if alphaSlider.value < 1{
             changeZoom(to: actualZoom + sender.velocity/25)
-        } else {
-//            var anchor : CGPoint = sender.location(in: imageView)
-//            let size = imageView.bounds.size
-//            anchor = CGPoint(x: anchor.x - size.width/2, y: anchor.y - size.height/2)
-//
-//            var affineMatrix = imageView.transform
-//            affineMatrix = affineMatrix.translatedBy(x: anchor.x, y: anchor.y)
-//            affineMatrix = affineMatrix.scaledBy(x: sender.scale, y: sender.scale)
-//            affineMatrix = affineMatrix.translatedBy(x: -anchor.x, y: -anchor.y)
-//            imageView.transform = affineMatrix
-//
-//            sender.scale = 1
-//            imageView.transform = imageView.transform.scaledBy(x: 1 + sender.velocity/25, y: 1 + sender.velocity/25)
+        } else if AppDelegate.beta {
+            var anchor : CGPoint = sender.location(in: imageView)
+            let size = imageView.bounds.size
+            anchor = CGPoint(x: anchor.x - size.width/2, y: anchor.y - size.height/2)
+
+            var affineMatrix = imageView.transform
+            affineMatrix = affineMatrix.translatedBy(x: anchor.x, y: anchor.y)
+            affineMatrix = affineMatrix.scaledBy(x: sender.scale, y: sender.scale)
+            affineMatrix = affineMatrix.translatedBy(x: -anchor.x, y: -anchor.y)
+            imageView.transform = affineMatrix
+
+            sender.scale = 1
+            imageView.transform = imageView.transform.scaledBy(x: 1 + sender.velocity/25, y: 1 + sender.velocity/25)
         }
     }
     

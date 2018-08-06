@@ -12,6 +12,8 @@ import UIKit
 class AppDelegate: UIResponder, UIApplicationDelegate {
 	var window: UIWindow?
     
+    static var beta = false
+    
     func applicationDidBecomeActive(_ application: UIApplication) {
         SettingsHelper.setVersionAndBuildNumber()
     }
