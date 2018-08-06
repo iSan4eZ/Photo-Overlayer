@@ -14,6 +14,8 @@
 		72BF375F20122C6200725F1D /* Main.storyboard in Resources */ = {isa = PBXBuildFile; fileRef = 72BF375D20122C6200725F1D /* Main.storyboard */; };
 		72BF376120122C6300725F1D /* Assets.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = 72BF376020122C6300725F1D /* Assets.xcassets */; };
 		72BF376420122C6300725F1D /* LaunchScreen.storyboard in Resources */ = {isa = PBXBuildFile; fileRef = 72BF376220122C6300725F1D /* LaunchScreen.storyboard */; };
+		79E4492F21181367000F71CA /* Settings.bundle in Resources */ = {isa = PBXBuildFile; fileRef = 79E4492E21181367000F71CA /* Settings.bundle */; };
+		79E4493121181A4C000F71CA /* SettingsHelper.swift in Sources */ = {isa = PBXBuildFile; fileRef = 79E4493021181A4C000F71CA /* SettingsHelper.swift */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXContainerItemProxy section */
@@ -45,6 +47,8 @@
 		72BF376520122C6300725F1D /* Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist.xml; path = Info.plist; sourceTree = "<group>"; };
 		72BF376A20122C6300725F1D /* Photo OverlayerTests.xctest */ = {isa = PBXFileReference; explicitFileType = wrapper.cfbundle; includeInIndex = 0; path = "Photo OverlayerTests.xctest"; sourceTree = BUILT_PRODUCTS_DIR; };
 		72BF377520122C6400725F1D /* Photo OverlayerUITests.xctest */ = {isa = PBXFileReference; explicitFileType = wrapper.cfbundle; includeInIndex = 0; path = "Photo OverlayerUITests.xctest"; sourceTree = BUILT_PRODUCTS_DIR; };
+		79E4492E21181367000F71CA /* Settings.bundle */ = {isa = PBXFileReference; lastKnownFileType = "wrapper.plug-in"; path = Settings.bundle; sourceTree = "<group>"; };
+		79E4493021181A4C000F71CA /* SettingsHelper.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SettingsHelper.swift; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -97,10 +101,12 @@
 				721C454C2041795E00736BF6 /* CameraViewController.swift */,
 				721C454D2041795E00736BF6 /* PhotoCaptureDelegate.swift */,
 				721C454E2041795F00736BF6 /* PreviewView.swift */,
+				79E4493021181A4C000F71CA /* SettingsHelper.swift */,
 				72BF375D20122C6200725F1D /* Main.storyboard */,
 				72BF376020122C6300725F1D /* Assets.xcassets */,
 				72BF376220122C6300725F1D /* LaunchScreen.storyboard */,
 				72BF376520122C6300725F1D /* Info.plist */,
+				79E4492E21181367000F71CA /* Settings.bundle */,
 			);
 			path = "Photo Overlayer";
 			sourceTree = "<group>";
@@ -214,6 +220,7 @@
 			isa = PBXResourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				79E4492F21181367000F71CA /* Settings.bundle in Resources */,
 				72BF376420122C6300725F1D /* LaunchScreen.storyboard in Resources */,
 				72BF376120122C6300725F1D /* Assets.xcassets in Resources */,
 				72BF375F20122C6200725F1D /* Main.storyboard in Resources */,
@@ -263,6 +270,7 @@
 			buildActionMask = 2147483647;
 			files = (
 				721C45502041795F00736BF6 /* PhotoCaptureDelegate.swift in Sources */,
+				79E4493121181A4C000F71CA /* SettingsHelper.swift in Sources */,
 				72BF375A20122C6200725F1D /* AppDelegate.swift in Sources */,
 				721C45512041795F00736BF6 /* PreviewView.swift in Sources */,
 				721C454F2041795F00736BF6 /* CameraViewController.swift in Sources */,

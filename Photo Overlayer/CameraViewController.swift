@@ -32,7 +32,7 @@ class CameraViewController: UIViewController, UIDocumentPickerDelegate {
     
     override func viewDidLoad() {
 		super.viewDidLoad()
-		
+        
 		// Disable UI. The UI is enabled if and only if the session starts running.
 		photoButton.isEnabled = false
   
@@ -478,7 +478,9 @@ class CameraViewController: UIViewController, UIDocumentPickerDelegate {
 			self.inProgressPhotoCaptureDelegates[photoCaptureProcessor.requestedPhotoSettings.uniqueID] = photoCaptureProcessor
 			self.photoOutput.capturePhoto(with: photoSettings, delegate: photoCaptureProcessor)
 		}
-        self.fileNameLabel.textColor = UIColor.green
+        if self.alphaSlider.value > 0 {
+            self.fileNameLabel.textColor = UIColor.green
+        }
 	}
 	
 	// MARK: Recording Movies
@@ -749,6 +751,9 @@ class CameraViewController: UIViewController, UIDocumentPickerDelegate {
             if !session.isRunning {
                 session.startRunning()
             }
+//            if !imageView.transform.isIdentity{
+//                imageView.transform = CGAffineTransform.identity
+//            }
         } else {
             session.stopRunning()
         }
@@ -802,7 +807,22 @@ class CameraViewController: UIViewController, UIDocumentPickerDelegate {
     }
     
     @IBAction func zoomChanged(_ sender: UIPinchGestureRecognizer) {
-        changeZoom(to: actualZoom + sender.velocity/25)
+        if alphaSlider.value < 1{
+            changeZoom(to: actualZoom + sender.velocity/25)
+        } else {
+//            var anchor : CGPoint = sender.location(in: imageView)
+//            let size = imageView.bounds.size
+//            anchor = CGPoint(x: anchor.x - size.width/2, y: anchor.y - size.height/2)
+//
+//            var affineMatrix = imageView.transform
+//            affineMatrix = affineMatrix.translatedBy(x: anchor.x, y: anchor.y)
+//            affineMatrix = affineMatrix.scaledBy(x: sender.scale, y: sender.scale)
+//            affineMatrix = affineMatrix.translatedBy(x: -anchor.x, y: -anchor.y)
+//            imageView.transform = affineMatrix
+//
+//            sender.scale = 1
+//            imageView.transform = imageView.transform.scaledBy(x: 1 + sender.velocity/25, y: 1 + sender.velocity/25)
+        }
     }
     
     func changeZoom(to: CGFloat){
