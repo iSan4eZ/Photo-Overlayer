@@ -132,7 +132,7 @@ extension PhotoCaptureProcessor: AVCapturePhotoCaptureDelegate {
                     let croppedImage = UIImage(cgImage: imageRef!, scale: image!.scale, orientation: image!.imageOrientation)
                     if var data = croppedImage.jpegData(compressionQuality: 1.0){
                         data = self.addDataToExif(imageData: data, zoomValue: self.zoomValue, fov: self.fovValue, location: self.gpsMetadata)
-                        if self.actualFile != nil && !(self.actualFile!.url.path.starts(with: FileManager.default.urls(for: .documentDirectory, in: .userDomainMask)[0].path) || self.actualFile!.url.path.replacingOccurrences(of: "/private", with: "").starts(with: FileManager.default.urls(for: .documentDirectory, in: .userDomainMask)[0].path)){
+                        if self.actualFile != nil{
                                 do {
                                     var newPath = self.actualFile!.url.deletingLastPathComponent().appendingPathComponent(self.actualFile!.url.deletingPathExtension().lastPathComponent, isDirectory: true)
                                     var i = 1
