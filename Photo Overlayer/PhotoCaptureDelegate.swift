@@ -132,7 +132,7 @@ extension PhotoCaptureProcessor: AVCapturePhotoCaptureDelegate {
                     let croppedImage = UIImage(cgImage: imageRef!, scale: image!.scale, orientation: image!.imageOrientation)
                     if var data = croppedImage.jpegData(compressionQuality: 1.0){
                         data = self.addDataToExif(imageData: data, zoomValue: self.zoomValue, fov: self.fovValue, location: self.gpsMetadata)
-                        if self.actualFile != nil && !self.actualFile!.url.path.starts(with: FileManager.default.urls(for: .documentDirectory, in: .userDomainMask)[0].path){
+                        if self.actualFile != nil && !(self.actualFile!.url.path.starts(with: FileManager.default.urls(for: .documentDirectory, in: .userDomainMask)[0].path) || self.actualFile!.url.path.replacingOccurrences(of: "/private", with: "").starts(with: FileManager.default.urls(for: .documentDirectory, in: .userDomainMask)[0].path)){
                                 do {
                                     var newPath = self.actualFile!.url.deletingLastPathComponent().appendingPathComponent(self.actualFile!.url.deletingPathExtension().lastPathComponent, isDirectory: true)
                                     var i = 1
@@ -146,7 +146,31 @@ extension PhotoCaptureProcessor: AVCapturePhotoCaptureDelegate {
                                     try data.write(to: newPath)
                                 } catch {
                                     print("error saving file:", error)
-                                }
+                                    do {
+                                        var newPath = FileManager.default.urls(for: .documentDirectory, in: .userDomainMask)[0]
+                                        var j = 9
+                                        while self.actualFile!.url.pathComponents[j] != self.actualFile!.url.lastPathComponent && j < 100{
+                                            newPath.appendPathComponent(self.actualFile!.url.pathComponents[j])
+                                            j += 1
+                                        }
+                                        newPath.appendPathComponent(self.actualFile!.url.deletingPathExtension().lastPathComponent);
+//                                        self.actualFile!.url.deletingLastPathComponent().appendingPathComponent(self.actualFile!.url.deletingPathExtension().lastPathComponent, isDirectory: true)
+                                        var i = 1
+                                        try FileManager.default.createDirectory(at: newPath, withIntermediateDirectories: true, attributes: nil)
+                                        while FileManager.default.fileExists(atPath: newPath.appendingPathComponent("\(i).\(self.actualFile!.url.pathExtension)", isDirectory: false).path){
+                                            i += 1
+                                        }
+                                        newPath = newPath.appendingPathComponent("\(i).\(self.actualFile!.url.pathExtension)")
+                                        
+                                        try data.write(to: newPath)
+                                    } catch {
+                                        print("error trying to recover saving file:", error)
+                                        let options = PHAssetResourceCreationOptions()
+                                        let creationRequest = PHAssetCreationRequest.forAsset()
+                                        options.uniformTypeIdentifier = self.requestedPhotoSettings.processedFileType.map { $0.rawValue }
+                                        creationRequest.addResource(with: .photo, data: data, options: options)
+                                    }
+                            }
                             
                         } else {
                             //UIImageWriteToSavedPhotosAlbum(croppedImage, nil, nil, nil)
