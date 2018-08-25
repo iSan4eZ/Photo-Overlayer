@@ -30,6 +30,7 @@ class PhotoCaptureProcessor: NSObject {
     
     var originalExif : NSMutableDictionary!
     var gpsMetadata : NSMutableDictionary?
+    var view : UIViewController!
 
 	init(with requestedPhotoSettings: AVCapturePhotoSettings,
 	     willCapturePhotoAnimation: @escaping () -> Void,
@@ -42,6 +43,7 @@ class PhotoCaptureProcessor: NSObject {
             zoomValue = actualQueueItem!.zoom
             fovValue = actualQueueItem!.fov
             gpsMetadata = actualQueueItem!.gps
+            view = actualQueueItem!.view
         }
 		self.requestedPhotoSettings = requestedPhotoSettings
 		self.willCapturePhotoAnimation = willCapturePhotoAnimation
@@ -83,7 +85,7 @@ extension PhotoCaptureProcessor: AVCapturePhotoCaptureDelegate {
     func photoOutput(_ output: AVCapturePhotoOutput, didFinishProcessingPhoto photo: AVCapturePhoto, error: Error?) {
         
         if let error = error {
-            print("Error capturing photo: \(error)")
+            MessageBox.Show(view: view, message: "Error capturing photo: \(error)", title: "Error")
         } else {
             photoData = photo.fileDataRepresentation()
         }
@@ -94,7 +96,7 @@ extension PhotoCaptureProcessor: AVCapturePhotoCaptureDelegate {
     
     func photoOutput(_ output: AVCapturePhotoOutput, didFinishProcessingLivePhotoToMovieFileAt outputFileURL: URL, duration: CMTime, photoDisplayTime: CMTime, resolvedSettings: AVCaptureResolvedPhotoSettings, error: Error?) {
         if error != nil {
-            print("Error processing live photo companion movie: \(String(describing: error))")
+            MessageBox.Show(view: view, message: "Error processing live photo companion movie: \(String(describing: error))", title: "Error")
             return
         }
         livePhotoCompanionMovieURL = outputFileURL
@@ -102,13 +104,13 @@ extension PhotoCaptureProcessor: AVCapturePhotoCaptureDelegate {
     
     func photoOutput(_ output: AVCapturePhotoOutput, didFinishCaptureFor resolvedSettings: AVCaptureResolvedPhotoSettings, error: Error?) {
         if let error = error {
-            print("Error capturing photo: \(error)")
+            MessageBox.Show(view: view, message: "Error capturing photo: \(error)", title: "Error")
             didFinish()
             return
         }
         
         guard let photoData = photoData else {
-            print("No photo data resource")
+            MessageBox.Show(view: view, message: "No photo data resource", title: "Error")
             didFinish()
             return
         }
@@ -164,7 +166,7 @@ extension PhotoCaptureProcessor: AVCapturePhotoCaptureDelegate {
                                         
                                         try data.write(to: newPath)
                                     } catch {
-                                        print("error trying to recover saving file:", error)
+                                        MessageBox.Show(view: self.view, message: "Error while trying to save photo: \(error)", title: "Error")
                                         let options = PHAssetResourceCreationOptions()
                                         let creationRequest = PHAssetCreationRequest.forAsset()
                                         options.uniformTypeIdentifier = self.requestedPhotoSettings.processedFileType.map { $0.rawValue }
@@ -183,7 +185,7 @@ extension PhotoCaptureProcessor: AVCapturePhotoCaptureDelegate {
                     }
                 }, completionHandler: { _, error in
                     if let error = error {
-                        print("Error occurered while saving photo to photo library: \(error)")
+                        MessageBox.Show(view: self.view, message: "Error occurered while saving photo to photo library: \(error)", title: "Error")
                     }
                     self.didFinish()
                 })
