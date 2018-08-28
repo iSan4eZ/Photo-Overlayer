@@ -261,13 +261,13 @@ class CameraViewController: UIViewController, UIDocumentPickerDelegate {
                     self.previewView.videoPreviewLayer.videoGravity = AVLayerVideoGravity.resizeAspectFill
 				}
 			} else {
-				print("Could not add video device input to the session")
+                MessageBox.Show(view: self, message: "Could not add video device input to the session", title: "Error")
 				setupResult = .configurationFailed
 				session.commitConfiguration()
 				return
 			}
 		} catch {
-			print("Could not create video device input: \(error)")
+            MessageBox.Show(view: self, message: "Could not create video device input: \(error)", title: "Error")
 			setupResult = .configurationFailed
 			session.commitConfiguration()
 			return
@@ -282,7 +282,7 @@ class CameraViewController: UIViewController, UIDocumentPickerDelegate {
             photoOutput.isDepthDataDeliveryEnabled = photoOutput.isDepthDataDeliverySupported
             
 		} else {
-			print("Could not add photo output to the session")
+            MessageBox.Show(view: self, message: "Could not add photo output to the session", title: "Error")
 			setupResult = .configurationFailed
 			session.commitConfiguration()
 			return
@@ -427,9 +427,9 @@ class CameraViewController: UIViewController, UIDocumentPickerDelegate {
         sessionQueue.async {
             self.FOV = self.videoDeviceInput.device.activeFormat.videoFieldOfView;
             if self.alphaSlider.value > 0 || self.currentFile == nil {
-                CameraViewController.filesQueue.append(queueItem(self.currentFile, self.actualZoom, self.FOV, self.createLocationMetadata()))
+                CameraViewController.filesQueue.append(queueItem(self.currentFile, self.actualZoom, self.FOV, self.createLocationMetadata(),self))
             } else {
-                CameraViewController.filesQueue.append(queueItem(File(self.currentFile!.url.deletingLastPathComponent().appendingPathComponent("Another.\(self.currentFile!.url.pathExtension)")), self.actualZoom, self.FOV, self.createLocationMetadata()))
+                CameraViewController.filesQueue.append(queueItem(File(self.currentFile!.url.deletingLastPathComponent().appendingPathComponent("Another.\(self.currentFile!.url.pathExtension)")), self.actualZoom, self.FOV, self.createLocationMetadata(), self))
             }
 			// Update the photo output's connection to match the video orientation of the video preview layer.
             if let photoOutputConnection = self.photoOutput.connection(with: .video) {
@@ -535,7 +535,7 @@ class CameraViewController: UIViewController, UIDocumentPickerDelegate {
 	func sessionRuntimeError(notification: NSNotification) {
 		guard let error = notification.userInfo?[AVCaptureSessionErrorKey] as? AVError else { return }
 		
-		print("Capture session runtime error: \(error)")
+        MessageBox.Show(view: self, message: "Capture session runtime error: \(error)", title: "Error")
 		
 		/*
 			Automatically try to restart the session running if media services were
@@ -656,12 +656,14 @@ class CameraViewController: UIViewController, UIDocumentPickerDelegate {
         var zoom : CGFloat
         var fov : Float
         var gps : NSMutableDictionary?
+        let view : UIViewController;
         
-        init(_ queueFile: File?, _ Zoom: CGFloat, _ Fov: Float, _ Gps: NSMutableDictionary?) {
+        init(_ queueFile: File?, _ Zoom: CGFloat, _ Fov: Float, _ Gps: NSMutableDictionary?, _ View: UIViewController) {
             self.file = queueFile
             self.zoom = Zoom
             self.fov = Fov
             self.gps = Gps
+            self.view = View
         }
     }
     
@@ -785,6 +787,7 @@ class CameraViewController: UIViewController, UIDocumentPickerDelegate {
             }
             fixAll()
         } else {
+            MessageBox.Show(view: self, message: "Can't access security scoped resourse", title: "Error")
             print("Can't access security scoped resourse")
         }
     }
