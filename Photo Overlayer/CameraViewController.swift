@@ -16,6 +16,8 @@ class CameraViewController: UIViewController, UIDocumentPickerDelegate {
 	
     @IBOutlet weak var PreviewHolder: UIView!
     
+    let minOpacity : Float = 0.05
+    
     var hideStatusBar = false
     var statusBarStyle = UIStatusBarStyle.lightContent
     
@@ -146,6 +148,7 @@ class CameraViewController: UIViewController, UIDocumentPickerDelegate {
                     }
 			}
 		}
+        stopGyros()
         startGyros()
         fixAll()
 	}
@@ -426,7 +429,7 @@ class CameraViewController: UIViewController, UIDocumentPickerDelegate {
 	@IBAction private func capturePhoto(_ photoButton: UIButton) {
         sessionQueue.async {
             self.FOV = self.videoDeviceInput.device.activeFormat.videoFieldOfView;
-            if self.alphaSlider.value > 0 || self.currentFile == nil {
+            if self.alphaSlider.value > self.minOpacity || self.currentFile == nil {
                 CameraViewController.filesQueue.append(queueItem(self.currentFile, self.actualZoom, self.FOV, self.createLocationMetadata(),self))
             } else {
                 CameraViewController.filesQueue.append(queueItem(File(self.currentFile!.url.deletingLastPathComponent().appendingPathComponent("Another.\(self.currentFile!.url.pathExtension)")), self.actualZoom, self.FOV, self.createLocationMetadata(), self))
@@ -478,7 +481,7 @@ class CameraViewController: UIViewController, UIDocumentPickerDelegate {
 			self.inProgressPhotoCaptureDelegates[photoCaptureProcessor.requestedPhotoSettings.uniqueID] = photoCaptureProcessor
 			self.photoOutput.capturePhoto(with: photoSettings, delegate: photoCaptureProcessor)
 		}
-        if self.alphaSlider.value > 0 {
+        if self.alphaSlider.value > minOpacity {
             self.fileNameLabel.textColor = UIColor.green
         }
 	}
@@ -565,6 +568,7 @@ class CameraViewController: UIViewController, UIDocumentPickerDelegate {
 			music playback in control center will not automatically resume the session
 			running. Also note that it is not always possible to resume, see `resumeInterruptedSession(_:)`.
 		*/
+        stopGyros()
         if let userInfoValue = notification.userInfo?[AVCaptureSessionInterruptionReasonKey] as AnyObject?,
 			let reasonIntegerValue = userInfoValue.integerValue,
 			let reason = AVCaptureSession.InterruptionReason(rawValue: reasonIntegerValue) {
@@ -584,7 +588,9 @@ class CameraViewController: UIViewController, UIDocumentPickerDelegate {
 	@objc
 	func sessionInterruptionEnded(notification: NSNotification) {
 		print("Capture session interruption ended")
-
+        
+        stopGyros()
+        startGyros()
 		if !cameraUnavailableLabel.isHidden {
 			UIView.animate(withDuration: 0.25,
 			    animations: {
@@ -609,6 +615,7 @@ class CameraViewController: UIViewController, UIDocumentPickerDelegate {
         var url : URL
         var zoom : CGFloat
         var imageOrientation : CGImagePropertyOrientation
+        var shootAlready : Bool = false
         
         init(_ Url: URL) {
             name = Url.lastPathComponent
@@ -685,13 +692,18 @@ class CameraViewController: UIViewController, UIDocumentPickerDelegate {
             }
         } else {
             currentFile = files[imagePageControl.currentPage]
+            fileNameLabel.text = alphaSlider.value <= minOpacity ? "Another" : currentFile?.name;
+            if (alphaSlider.value <= minOpacity){
+                fileNameLabel.textColor = UIColor.yellow;
+            }
         }
         
-        if currentFile != nil{
-            fileNameLabel.textColor = FileManager.default.fileExists(atPath: currentFile!.url.deletingLastPathComponent().appendingPathComponent(currentFile!.url.deletingPathExtension().lastPathComponent, isDirectory: true).path) ? UIColor.green : UIColor.yellow
+        if currentFile != nil && alphaSlider.value > minOpacity{
+            currentFile!.shootAlready = FileManager.default.fileExists(atPath: currentFile!.url.deletingLastPathComponent().appendingPathComponent(currentFile!.url.deletingPathExtension().lastPathComponent, isDirectory: true).path)
+            fileNameLabel.textColor = currentFile!.shootAlready ? UIColor.green : UIColor.yellow
         }
         
-        if alphaSlider.value < 1{
+        else if alphaSlider.value < 1{
             hideStatusBar = true
             setNeedsStatusBarAppearanceUpdate()
             
@@ -706,7 +718,7 @@ class CameraViewController: UIViewController, UIDocumentPickerDelegate {
     }
     
     @IBAction func selectClicked(_ sender: Any) {
-        let types = ["public.image"]
+        let types = ["public.image", "public.folder"]
         //Create a object of document picker view and set the mode to Import
         let docPicker = UIDocumentPickerViewController(documentTypes: types, in: UIDocumentPickerMode.open)
         docPicker.allowsMultipleSelection = true
@@ -729,8 +741,9 @@ class CameraViewController: UIViewController, UIDocumentPickerDelegate {
             files.removeAll()
             imagePageControl.currentPage = 0
             for url in urls{
-                
-                files.append(File(url))
+                if !url.absoluteString.hasSuffix("/"){
+                    files.append(File(url))
+                }
             }
             if files.count > 1 {
                 files.sort(by: { (s1, s2) -> Bool in return s1.name.localizedStandardCompare(s2.name) == .orderedAscending })
@@ -748,11 +761,19 @@ class CameraViewController: UIViewController, UIDocumentPickerDelegate {
                 setNeedsStatusBarAppearanceUpdate()
             }
             if imageView.image != nil{
-                imageView.alpha = CGFloat(alphaSlider.value)
+                imageView.alpha = CGFloat(alphaSlider.value <= minOpacity ? 0.0 : alphaSlider.value)
             }
             
             if !session.isRunning {
                 session.startRunning()
+            }
+            if currentFile != nil{
+                fileNameLabel.text = alphaSlider.value <= minOpacity ? "Another" : currentFile?.name;
+                if (alphaSlider.value <= minOpacity){
+                    fileNameLabel.textColor = UIColor.yellow;
+                } else {
+                    fileNameLabel.textColor = currentFile!.shootAlready ? UIColor.green : UIColor.yellow
+                }
             }
             if !imageView.transform.isIdentity && AppDelegate.beta {
                 imageView.transform = CGAffineTransform.identity
@@ -880,17 +901,16 @@ class CameraViewController: UIViewController, UIDocumentPickerDelegate {
     
     func startGyros() {
         if motion.isDeviceMotionAvailable {
-            self.motion.deviceMotionUpdateInterval = 1.0 / 5.0
+            self.motion.deviceMotionUpdateInterval = 1.0 / SettingsHelper.getGyroFrequency()
             self.motion.showsDeviceMovementDisplay = true
             self.motion.startDeviceMotionUpdates(using: .xMagneticNorthZVertical)
             
-            self.timer = Timer(fire: Date(), interval: (1.0/5.0), repeats: true,
+            self.timer = Timer(fire: Date(), interval: (1.0/SettingsHelper.getGyroFrequency()), repeats: true,
                                block: { (timer) in
                                 if let data = self.motion.deviceMotion {
                                     
                                     let x = data.attitude.pitch
                                     let y = data.attitude.roll
-                                    
                                     
                                     if x > 0.75 {
                                         self.currentOrientation = .portrait
@@ -916,6 +936,15 @@ class CameraViewController: UIViewController, UIDocumentPickerDelegate {
             })
             
             RunLoop.current.add(self.timer!, forMode: .default)
+        }
+    }
+    
+    func stopGyros() {
+        if self.timer != nil {
+            self.timer?.invalidate()
+            self.timer = nil
+            
+            self.motion.stopGyroUpdates()
         }
     }
 }

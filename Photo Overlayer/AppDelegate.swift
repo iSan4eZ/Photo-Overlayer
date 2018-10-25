@@ -16,5 +16,6 @@ class AppDelegate: UIResponder, UIApplicationDelegate {
     
     func applicationDidBecomeActive(_ application: UIApplication) {
         SettingsHelper.setVersionAndBuildNumber()
+        AppDelegate.beta = SettingsHelper.getBetaTriggerValue()
     }
 }

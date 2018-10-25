@@ -13,14 +13,22 @@ class SettingsHelper {
         static let BetaTrigger = "beta_preference"
         static let BuildVersionKey = "build_preference"
         static let AppVersionKey = "version_preference"
+        static let GyroFrequency = "gyro_preference"
     }
     
-    class func setVersionAndBuildNumber() {
+    static func setVersionAndBuildNumber() {
         let version: String = Bundle.main.object(forInfoDictionaryKey: "CFBundleShortVersionString") as! String
-        UserDefaults.standard.set(version, forKey: "version_preference")
+        UserDefaults.standard.set(version, forKey: SettingsBundleKeys.AppVersionKey)
         let build: String = Bundle.main.object(forInfoDictionaryKey: "CFBundleVersion") as! String
-        UserDefaults.standard.set(build, forKey: "build_preference")
-        AppDelegate.beta = UserDefaults.standard.bool(forKey: SettingsBundleKeys.BetaTrigger)
+        UserDefaults.standard.set(build, forKey: SettingsBundleKeys.BuildVersionKey)
+    }
+    
+    static func getGyroFrequency() -> Double {
+        return UserDefaults.standard.double(forKey: SettingsBundleKeys.GyroFrequency)
+    }
+    
+    static func getBetaTriggerValue() -> Bool {
+        return UserDefaults.standard.bool(forKey: SettingsBundleKeys.BetaTrigger)
     }
 
 }

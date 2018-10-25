@@ -26,15 +26,33 @@
 			<key>Key</key>
 			<string>build_preference</string>
 		</dict>
+		<dict>
+			<key>Type</key>
+			<string>PSToggleSwitchSpecifier</string>
+			<key>Title</key>
+			<string>Beta functions</string>
+			<key>Key</key>
+			<string>beta_preference</string>
+			<key>DefaultValue</key>
+			<false/>
+		</dict>
+		<dict>
+			<key>Type</key>
+			<string>PSGroupSpecifier</string>
+			<key>Title</key>
+			<string>Gyro Update Frequency</string>
+		</dict>
         <dict>
             <key>Type</key>
-            <string>PSToggleSwitchSpecifier</string>
-            <key>Title</key>
-            <string>Beta functions</string>
+            <string>PSSliderSpecifier</string>
             <key>Key</key>
-            <string>beta_preference</string>
+            <string>gyro_preference</string>
             <key>DefaultValue</key>
-            <false/>
+            <integer>5</integer>
+            <key>MinimumValue</key>
+            <integer>1</integer>
+            <key>MaximumValue</key>
+            <integer>15</integer>
         </dict>
 	</array>
 </dict>
