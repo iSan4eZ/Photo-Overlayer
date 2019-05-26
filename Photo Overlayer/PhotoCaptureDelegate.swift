@@ -122,10 +122,18 @@ extension PhotoCaptureProcessor: AVCapturePhotoCaptureDelegate {
                     self.originalExif = self.getExif(imageData: photoData)
                     let image = UIImage(data:photoData,scale:1.0)
                     
-                    let dX: CGFloat = 0
-                    let dY = (image!.size.height - ((image!.size.width/16)*9))/2
-                    let dW = image!.size.width
-                    let dH = (image!.size.width/16)*9
+                    var dX, dY, dW, dH : CGFloat
+                    if image!.size.height > image!.size.width{
+                         dX = 0
+                         dY = (image!.size.width - ((image!.size.height/16)*9))/2
+                         dW = image!.size.height
+                         dH = (image!.size.height/16)*9
+                    } else {
+                         dX = 0
+                         dY = (image!.size.height - ((image!.size.width/16)*9))/2
+                         dW = image!.size.width
+                         dH = (image!.size.width/16)*9
+                    }
                     
                     let rect = CGRect(x: dX, y: dY, width: dW, height: dH)
                     

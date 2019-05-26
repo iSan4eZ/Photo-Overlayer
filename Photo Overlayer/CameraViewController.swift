@@ -439,14 +439,24 @@ class CameraViewController: UIViewController, UIDocumentPickerDelegate {
                 photoOutputConnection.videoOrientation = self.currentOrientation
 			}
 			
-            var photoSettings = AVCapturePhotoSettings()
+//            let exposureValues: [Float] = [2, -2, 0]
+//            let makeAutoExposureSettings = AVCaptureAutoExposureBracketedStillImageSettings.autoExposureSettings(exposureTargetBias: )
+//            let exposureSettings = exposureValues.map(makeAutoExposureSettings)
+            
+//            var photoSettings = AVCapturePhotoBracketSettings(rawPixelFormatType: 0,
+//                                                              processedFormat: [AVVideoCodecKey : AVVideoCodecType.jpeg],
+//                                                              bracketedSettings: exposureSettings)
+            var photoSettings = AVCapturePhotoSettings();
             // Capture HEIF photo when supported, with flash set to auto and high resolution photo enabled.
             if  self.photoOutput.availablePhotoCodecTypes.contains(.hevc) {
-                
-            photoSettings = AVCapturePhotoSettings(format: [AVVideoCodecKey: AVVideoCodecType.hevc])
+//                photoSettings = AVCapturePhotoBracketSettings(rawPixelFormatType: 0,
+//                                                              processedFormat: [AVVideoCodecKey : AVVideoCodecType.hevc],
+//                                                              bracketedSettings: exposureSettings)
+                photoSettings = AVCapturePhotoSettings(format: [AVVideoCodecKey: AVVideoCodecType.hevc])
 
             }
             
+//            photoSettings.isLensStabilizationEnabled = self.photoOutput.isLensStabilizationDuringBracketedCaptureSupported
             photoSettings.flashMode = .off
 			photoSettings.isHighResolutionPhotoEnabled = true
 			if !photoSettings.__availablePreviewPhotoPixelFormatTypes.isEmpty {
