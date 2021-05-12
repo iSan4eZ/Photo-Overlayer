@@ -19,23 +19,6 @@
 		79E4493121181A4C000F71CA /* SettingsHelper.swift in Sources */ = {isa = PBXBuildFile; fileRef = 79E4493021181A4C000F71CA /* SettingsHelper.swift */; };
 /* End PBXBuildFile section */
 
-/* Begin PBXContainerItemProxy section */
-		72BF376B20122C6300725F1D /* PBXContainerItemProxy */ = {
-			isa = PBXContainerItemProxy;
-			containerPortal = 72BF374E20122C6200725F1D /* Project object */;
-			proxyType = 1;
-			remoteGlobalIDString = 72BF375520122C6200725F1D;
-			remoteInfo = "Photo Overlayer";
-		};
-		72BF377620122C6400725F1D /* PBXContainerItemProxy */ = {
-			isa = PBXContainerItemProxy;
-			containerPortal = 72BF374E20122C6200725F1D /* Project object */;
-			proxyType = 1;
-			remoteGlobalIDString = 72BF375520122C6200725F1D;
-			remoteInfo = "Photo Overlayer";
-		};
-/* End PBXContainerItemProxy section */
-
 /* Begin PBXFileReference section */
 		721C454C2041795E00736BF6 /* CameraViewController.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = CameraViewController.swift; sourceTree = "<group>"; };
 		721C454D2041795E00736BF6 /* PhotoCaptureDelegate.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = PhotoCaptureDelegate.swift; sourceTree = "<group>"; };
@@ -46,8 +29,6 @@
 		72BF376020122C6300725F1D /* Assets.xcassets */ = {isa = PBXFileReference; lastKnownFileType = folder.assetcatalog; path = Assets.xcassets; sourceTree = "<group>"; };
 		72BF376320122C6300725F1D /* Base */ = {isa = PBXFileReference; lastKnownFileType = file.storyboard; name = Base; path = Base.lproj/LaunchScreen.storyboard; sourceTree = "<group>"; };
 		72BF376520122C6300725F1D /* Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist.xml; path = Info.plist; sourceTree = "<group>"; };
-		72BF376A20122C6300725F1D /* Photo OverlayerTests.xctest */ = {isa = PBXFileReference; explicitFileType = wrapper.cfbundle; includeInIndex = 0; path = "Photo OverlayerTests.xctest"; sourceTree = BUILT_PRODUCTS_DIR; };
-		72BF377520122C6400725F1D /* Photo OverlayerUITests.xctest */ = {isa = PBXFileReference; explicitFileType = wrapper.cfbundle; includeInIndex = 0; path = "Photo OverlayerUITests.xctest"; sourceTree = BUILT_PRODUCTS_DIR; };
 		791EE16B2131351B00991233 /* MessageBox.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MessageBox.swift; sourceTree = "<group>"; };
 		79E4492E21181367000F71CA /* Settings.bundle */ = {isa = PBXFileReference; lastKnownFileType = "wrapper.plug-in"; path = Settings.bundle; sourceTree = "<group>"; };
 		79E4493021181A4C000F71CA /* SettingsHelper.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SettingsHelper.swift; sourceTree = "<group>"; };
@@ -55,20 +36,6 @@
 
 /* Begin PBXFrameworksBuildPhase section */
 		72BF375320122C6200725F1D /* Frameworks */ = {
-			isa = PBXFrameworksBuildPhase;
-			buildActionMask = 2147483647;
-			files = (
-			);
-			runOnlyForDeploymentPostprocessing = 0;
-		};
-		72BF376720122C6300725F1D /* Frameworks */ = {
-			isa = PBXFrameworksBuildPhase;
-			buildActionMask = 2147483647;
-			files = (
-			);
-			runOnlyForDeploymentPostprocessing = 0;
-		};
-		72BF377220122C6400725F1D /* Frameworks */ = {
 			isa = PBXFrameworksBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
@@ -90,8 +57,6 @@
 			isa = PBXGroup;
 			children = (
 				72BF375620122C6200725F1D /* Photo Overlayer.app */,
-				72BF376A20122C6300725F1D /* Photo OverlayerTests.xctest */,
-				72BF377520122C6400725F1D /* Photo OverlayerUITests.xctest */,
 			);
 			name = Products;
 			sourceTree = "<group>";
@@ -135,42 +100,6 @@
 			productReference = 72BF375620122C6200725F1D /* Photo Overlayer.app */;
 			productType = "com.apple.product-type.application";
 		};
-		72BF376920122C6300725F1D /* Photo OverlayerTests */ = {
-			isa = PBXNativeTarget;
-			buildConfigurationList = 72BF378120122C6400725F1D /* Build configuration list for PBXNativeTarget "Photo OverlayerTests" */;
-			buildPhases = (
-				72BF376620122C6300725F1D /* Sources */,
-				72BF376720122C6300725F1D /* Frameworks */,
-				72BF376820122C6300725F1D /* Resources */,
-			);
-			buildRules = (
-			);
-			dependencies = (
-				72BF376C20122C6300725F1D /* PBXTargetDependency */,
-			);
-			name = "Photo OverlayerTests";
-			productName = "Photo OverlayerTests";
-			productReference = 72BF376A20122C6300725F1D /* Photo OverlayerTests.xctest */;
-			productType = "com.apple.product-type.bundle.unit-test";
-		};
-		72BF377420122C6400725F1D /* Photo OverlayerUITests */ = {
-			isa = PBXNativeTarget;
-			buildConfigurationList = 72BF378420122C6400725F1D /* Build configuration list for PBXNativeTarget "Photo OverlayerUITests" */;
-			buildPhases = (
-				72BF377120122C6400725F1D /* Sources */,
-				72BF377220122C6400725F1D /* Frameworks */,
-				72BF377320122C6400725F1D /* Resources */,
-			);
-			buildRules = (
-			);
-			dependencies = (
-				72BF377720122C6400725F1D /* PBXTargetDependency */,
-			);
-			name = "Photo OverlayerUITests";
-			productName = "Photo OverlayerUITests";
-			productReference = 72BF377520122C6400725F1D /* Photo OverlayerUITests.xctest */;
-			productType = "com.apple.product-type.bundle.ui-testing";
-		};
 /* End PBXNativeTarget section */
 
 /* Begin PBXProject section */
@@ -183,18 +112,8 @@
 				TargetAttributes = {
 					72BF375520122C6200725F1D = {
 						CreatedOnToolsVersion = 9.2;
-						LastSwiftMigration = 1000;
+						LastSwiftMigration = 1130;
 						ProvisioningStyle = Automatic;
-					};
-					72BF376920122C6300725F1D = {
-						CreatedOnToolsVersion = 9.2;
-						ProvisioningStyle = Automatic;
-						TestTargetID = 72BF375520122C6200725F1D;
-					};
-					72BF377420122C6400725F1D = {
-						CreatedOnToolsVersion = 9.2;
-						ProvisioningStyle = Automatic;
-						TestTargetID = 72BF375520122C6200725F1D;
 					};
 				};
 			};
@@ -212,8 +131,6 @@
 			projectRoot = "";
 			targets = (
 				72BF375520122C6200725F1D /* Photo Overlayer */,
-				72BF376920122C6300725F1D /* Photo OverlayerTests */,
-				72BF377420122C6400725F1D /* Photo OverlayerUITests */,
 			);
 		};
 /* End PBXProject section */
@@ -227,20 +144,6 @@
 				72BF376420122C6300725F1D /* LaunchScreen.storyboard in Resources */,
 				72BF376120122C6300725F1D /* Assets.xcassets in Resources */,
 				72BF375F20122C6200725F1D /* Main.storyboard in Resources */,
-			);
-			runOnlyForDeploymentPostprocessing = 0;
-		};
-		72BF376820122C6300725F1D /* Resources */ = {
-			isa = PBXResourcesBuildPhase;
-			buildActionMask = 2147483647;
-			files = (
-			);
-			runOnlyForDeploymentPostprocessing = 0;
-		};
-		72BF377320122C6400725F1D /* Resources */ = {
-			isa = PBXResourcesBuildPhase;
-			buildActionMask = 2147483647;
-			files = (
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -281,34 +184,7 @@
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
-		72BF376620122C6300725F1D /* Sources */ = {
-			isa = PBXSourcesBuildPhase;
-			buildActionMask = 2147483647;
-			files = (
-			);
-			runOnlyForDeploymentPostprocessing = 0;
-		};
-		72BF377120122C6400725F1D /* Sources */ = {
-			isa = PBXSourcesBuildPhase;
-			buildActionMask = 2147483647;
-			files = (
-			);
-			runOnlyForDeploymentPostprocessing = 0;
-		};
 /* End PBXSourcesBuildPhase section */
-
-/* Begin PBXTargetDependency section */
-		72BF376C20122C6300725F1D /* PBXTargetDependency */ = {
-			isa = PBXTargetDependency;
-			target = 72BF375520122C6200725F1D /* Photo Overlayer */;
-			targetProxy = 72BF376B20122C6300725F1D /* PBXContainerItemProxy */;
-		};
-		72BF377720122C6400725F1D /* PBXTargetDependency */ = {
-			isa = PBXTargetDependency;
-			target = 72BF375520122C6200725F1D /* Photo Overlayer */;
-			targetProxy = 72BF377620122C6400725F1D /* PBXContainerItemProxy */;
-		};
-/* End PBXTargetDependency section */
 
 /* Begin PBXVariantGroup section */
 		72BF375D20122C6200725F1D /* Main.storyboard */ = {
@@ -380,7 +256,7 @@
 				GCC_WARN_UNINITIALIZED_AUTOS = YES_AGGRESSIVE;
 				GCC_WARN_UNUSED_FUNCTION = YES;
 				GCC_WARN_UNUSED_VARIABLE = YES;
-				IPHONEOS_DEPLOYMENT_TARGET = 11.2;
+				IPHONEOS_DEPLOYMENT_TARGET = 13.0;
 				MTL_ENABLE_DEBUG_INFO = YES;
 				ONLY_ACTIVE_ARCH = YES;
 				SDKROOT = iphoneos;
@@ -433,7 +309,7 @@
 				GCC_WARN_UNINITIALIZED_AUTOS = YES_AGGRESSIVE;
 				GCC_WARN_UNUSED_FUNCTION = YES;
 				GCC_WARN_UNUSED_VARIABLE = YES;
-				IPHONEOS_DEPLOYMENT_TARGET = 11.2;
+				IPHONEOS_DEPLOYMENT_TARGET = 13.0;
 				MTL_ENABLE_DEBUG_INFO = NO;
 				SDKROOT = iphoneos;
 				SWIFT_OPTIMIZATION_LEVEL = "-Owholemodule";
@@ -446,16 +322,17 @@
 			buildSettings = {
 				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
 				CLANG_ENABLE_OBJC_WEAK = YES;
-				CODE_SIGN_IDENTITY = "iPhone Developer";
+				CODE_SIGN_IDENTITY = "Apple Development";
 				CODE_SIGN_STYLE = Automatic;
 				DEVELOPMENT_TEAM = A95NX8736D;
 				INFOPLIST_FILE = "Photo Overlayer/Info.plist";
-				IPHONEOS_DEPLOYMENT_TARGET = 11.0;
+				IPHONEOS_DEPLOYMENT_TARGET = 13.0;
 				LD_RUNPATH_SEARCH_PATHS = "$(inherited) @executable_path/Frameworks";
-				PRODUCT_BUNDLE_IDENTIFIER = "com.spanasiuk.Photo-Overlayer";
+				MARKETING_VERSION = 1.2.1;
+				PRODUCT_BUNDLE_IDENTIFIER = com.spanasiuk.PhotoOverlayer;
 				PRODUCT_NAME = "$(TARGET_NAME)";
 				PROVISIONING_PROFILE_SPECIFIER = "";
-				SWIFT_VERSION = 4.2;
+				SWIFT_VERSION = 5.0;
 				TARGETED_DEVICE_FAMILY = "1,2";
 			};
 			name = Debug;
@@ -465,87 +342,18 @@
 			buildSettings = {
 				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
 				CLANG_ENABLE_OBJC_WEAK = YES;
-				CODE_SIGN_IDENTITY = "iPhone Developer";
+				CODE_SIGN_IDENTITY = "Apple Development";
 				CODE_SIGN_STYLE = Automatic;
 				DEVELOPMENT_TEAM = A95NX8736D;
 				INFOPLIST_FILE = "Photo Overlayer/Info.plist";
-				IPHONEOS_DEPLOYMENT_TARGET = 11.0;
+				IPHONEOS_DEPLOYMENT_TARGET = 13.0;
 				LD_RUNPATH_SEARCH_PATHS = "$(inherited) @executable_path/Frameworks";
-				PRODUCT_BUNDLE_IDENTIFIER = "com.spanasiuk.Photo-Overlayer";
+				MARKETING_VERSION = 1.2.1;
+				PRODUCT_BUNDLE_IDENTIFIER = com.spanasiuk.PhotoOverlayer;
 				PRODUCT_NAME = "$(TARGET_NAME)";
 				PROVISIONING_PROFILE_SPECIFIER = "";
-				SWIFT_VERSION = 4.2;
+				SWIFT_VERSION = 5.0;
 				TARGETED_DEVICE_FAMILY = "1,2";
-			};
-			name = Release;
-		};
-		72BF378220122C6400725F1D /* Debug */ = {
-			isa = XCBuildConfiguration;
-			buildSettings = {
-				ALWAYS_EMBED_SWIFT_STANDARD_LIBRARIES = YES;
-				BUNDLE_LOADER = "$(TEST_HOST)";
-				CLANG_ENABLE_OBJC_WEAK = YES;
-				CODE_SIGN_STYLE = Automatic;
-				DEVELOPMENT_TEAM = 6VW33B85K5;
-				INFOPLIST_FILE = "Photo OverlayerTests/Info.plist";
-				LD_RUNPATH_SEARCH_PATHS = "$(inherited) @executable_path/Frameworks @loader_path/Frameworks";
-				PRODUCT_BUNDLE_IDENTIFIER = "com.isan4ez.Photo-OverlayerTests";
-				PRODUCT_NAME = "$(TARGET_NAME)";
-				SWIFT_VERSION = 4.0;
-				TARGETED_DEVICE_FAMILY = "1,2";
-				TEST_HOST = "$(BUILT_PRODUCTS_DIR)/Photo Overlayer.app/Photo Overlayer";
-			};
-			name = Debug;
-		};
-		72BF378320122C6400725F1D /* Release */ = {
-			isa = XCBuildConfiguration;
-			buildSettings = {
-				ALWAYS_EMBED_SWIFT_STANDARD_LIBRARIES = YES;
-				BUNDLE_LOADER = "$(TEST_HOST)";
-				CLANG_ENABLE_OBJC_WEAK = YES;
-				CODE_SIGN_STYLE = Automatic;
-				DEVELOPMENT_TEAM = 6VW33B85K5;
-				INFOPLIST_FILE = "Photo OverlayerTests/Info.plist";
-				LD_RUNPATH_SEARCH_PATHS = "$(inherited) @executable_path/Frameworks @loader_path/Frameworks";
-				PRODUCT_BUNDLE_IDENTIFIER = "com.isan4ez.Photo-OverlayerTests";
-				PRODUCT_NAME = "$(TARGET_NAME)";
-				SWIFT_VERSION = 4.0;
-				TARGETED_DEVICE_FAMILY = "1,2";
-				TEST_HOST = "$(BUILT_PRODUCTS_DIR)/Photo Overlayer.app/Photo Overlayer";
-			};
-			name = Release;
-		};
-		72BF378520122C6400725F1D /* Debug */ = {
-			isa = XCBuildConfiguration;
-			buildSettings = {
-				ALWAYS_EMBED_SWIFT_STANDARD_LIBRARIES = YES;
-				CLANG_ENABLE_OBJC_WEAK = YES;
-				CODE_SIGN_STYLE = Automatic;
-				DEVELOPMENT_TEAM = 6VW33B85K5;
-				INFOPLIST_FILE = "Photo OverlayerUITests/Info.plist";
-				LD_RUNPATH_SEARCH_PATHS = "$(inherited) @executable_path/Frameworks @loader_path/Frameworks";
-				PRODUCT_BUNDLE_IDENTIFIER = "com.isan4ez.Photo-OverlayerUITests";
-				PRODUCT_NAME = "$(TARGET_NAME)";
-				SWIFT_VERSION = 4.0;
-				TARGETED_DEVICE_FAMILY = "1,2";
-				TEST_TARGET_NAME = "Photo Overlayer";
-			};
-			name = Debug;
-		};
-		72BF378620122C6400725F1D /* Release */ = {
-			isa = XCBuildConfiguration;
-			buildSettings = {
-				ALWAYS_EMBED_SWIFT_STANDARD_LIBRARIES = YES;
-				CLANG_ENABLE_OBJC_WEAK = YES;
-				CODE_SIGN_STYLE = Automatic;
-				DEVELOPMENT_TEAM = 6VW33B85K5;
-				INFOPLIST_FILE = "Photo OverlayerUITests/Info.plist";
-				LD_RUNPATH_SEARCH_PATHS = "$(inherited) @executable_path/Frameworks @loader_path/Frameworks";
-				PRODUCT_BUNDLE_IDENTIFIER = "com.isan4ez.Photo-OverlayerUITests";
-				PRODUCT_NAME = "$(TARGET_NAME)";
-				SWIFT_VERSION = 4.0;
-				TARGETED_DEVICE_FAMILY = "1,2";
-				TEST_TARGET_NAME = "Photo Overlayer";
 			};
 			name = Release;
 		};
@@ -566,24 +374,6 @@
 			buildConfigurations = (
 				72BF377F20122C6400725F1D /* Debug */,
 				72BF378020122C6400725F1D /* Release */,
-			);
-			defaultConfigurationIsVisible = 0;
-			defaultConfigurationName = Release;
-		};
-		72BF378120122C6400725F1D /* Build configuration list for PBXNativeTarget "Photo OverlayerTests" */ = {
-			isa = XCConfigurationList;
-			buildConfigurations = (
-				72BF378220122C6400725F1D /* Debug */,
-				72BF378320122C6400725F1D /* Release */,
-			);
-			defaultConfigurationIsVisible = 0;
-			defaultConfigurationName = Release;
-		};
-		72BF378420122C6400725F1D /* Build configuration list for PBXNativeTarget "Photo OverlayerUITests" */ = {
-			isa = XCConfigurationList;
-			buildConfigurations = (
-				72BF378520122C6400725F1D /* Debug */,
-				72BF378620122C6400725F1D /* Release */,
 			);
 			defaultConfigurationIsVisible = 0;
 			defaultConfigurationName = Release;

@@ -19,6 +19,7 @@ class CameraViewController: UIViewController, UIDocumentPickerDelegate {
     let minOpacity : Float = 0.05
     
     var hideStatusBar = false
+    var sessionIsReady = false
     var statusBarStyle = UIStatusBarStyle.lightContent
     
     var locationManager = CLLocationManager()
@@ -99,9 +100,9 @@ class CameraViewController: UIViewController, UIDocumentPickerDelegate {
 			take a long time. We dispatch session setup to the sessionQueue so
 			that the main queue isn't blocked, which keeps the UI responsive.
 		*/
-		sessionQueue.async {
-			self.configureSession()
-		}
+        sessionQueue.async {
+            self.configureSession()
+        }
 	}
 	
 	override func viewWillAppear(_ animated: Bool) {
@@ -166,7 +167,7 @@ class CameraViewController: UIViewController, UIDocumentPickerDelegate {
 	}
 	
     override var supportedInterfaceOrientations: UIInterfaceOrientationMask {
-		return .all
+        return .portrait
 	}
 	
 	override func viewWillTransition(to size: CGSize, with coordinator: UIViewControllerTransitionCoordinator) {
@@ -192,14 +193,13 @@ class CameraViewController: UIViewController, UIDocumentPickerDelegate {
 	}
 	
 	private let session = AVCaptureSession()
-	
 	private var isSessionRunning = false
 	
 	private let sessionQueue = DispatchQueue(label: "session queue") // Communicate with the session and other session objects on this queue.
 	
 	private var setupResult: SessionSetupResult = .success
-	
-	var videoDeviceInput: AVCaptureDeviceInput!
+    
+    @objc dynamic var videoDeviceInput: AVCaptureDeviceInput!
 	
 	@IBOutlet private weak var previewView: PreviewView!
     
@@ -219,23 +219,23 @@ class CameraViewController: UIViewController, UIDocumentPickerDelegate {
 		
 		// Add video input.
 		do {
-			var defaultVideoDevice: AVCaptureDevice?
-			
-			// Choose the back dual camera if available, otherwise default to a wide angle camera.
-            if let dualCameraDevice = AVCaptureDevice.default(.builtInDualCamera, for: .video, position: .back) {
-				defaultVideoDevice = dualCameraDevice
-            } else if let backCameraDevice = AVCaptureDevice.default(.builtInWideAngleCamera, for: .video, position: .back) {
-				// If the back dual camera is not available, default to the back wide angle camera.
-				defaultVideoDevice = backCameraDevice
+            var defaultVideoDevice: AVCaptureDevice?
+            
+            if let backCameraDevice = AVCaptureDevice.default(.builtInWideAngleCamera, for: .video, position: .back) {
+                // If a rear dual camera is not available, default to the rear wide angle camera.
+                defaultVideoDevice = backCameraDevice
             } else if let frontCameraDevice = AVCaptureDevice.default(.builtInWideAngleCamera, for: .video, position: .front) {
-				/*
-                   In some cases where users break their phones, the back wide angle camera is not available.
-                   In this case, we should default to the front wide angle camera.
-                */
-				defaultVideoDevice = frontCameraDevice
-			}
-			
-            let videoDeviceInput = try AVCaptureDeviceInput(device: defaultVideoDevice!)
+                // If the rear wide angle camera isn't available, default to the front wide angle camera.
+                defaultVideoDevice = frontCameraDevice
+            }
+            guard let videoDevice = defaultVideoDevice else {
+                print("Default video device is unavailable.")
+                setupResult = .configurationFailed
+                session.commitConfiguration()
+                sessionIsReady = true
+                return
+            }
+            let videoDeviceInput = try AVCaptureDeviceInput(device: videoDevice)
 			
 			if session.canAddInput(videoDeviceInput) {
 				session.addInput(videoDeviceInput)
@@ -252,12 +252,9 @@ class CameraViewController: UIViewController, UIDocumentPickerDelegate {
 						Use the status bar orientation as the initial video orientation. Subsequent orientation changes are
 						handled by CameraViewController.viewWillTransition(to:with:).
 					*/
-					let statusBarOrientation = UIApplication.shared.statusBarOrientation
 					var initialVideoOrientation: AVCaptureVideoOrientation = .portrait
-					if statusBarOrientation != .unknown {
-						if let videoOrientation = AVCaptureVideoOrientation(interfaceOrientation: statusBarOrientation) {
-							initialVideoOrientation = videoOrientation
-						}
+                    if let videoOrientation = AVCaptureVideoOrientation(interfaceOrientation: UIInterfaceOrientation.portrait) {
+                        initialVideoOrientation = videoOrientation
 					}
 					
                     self.previewView.videoPreviewLayer.connection?.videoOrientation = initialVideoOrientation
@@ -267,12 +264,14 @@ class CameraViewController: UIViewController, UIDocumentPickerDelegate {
                 MessageBox.Show(view: self, message: "Could not add video device input to the session", title: "Error")
 				setupResult = .configurationFailed
 				session.commitConfiguration()
+                sessionIsReady = true
 				return
 			}
 		} catch {
             MessageBox.Show(view: self, message: "Could not create video device input: \(error)", title: "Error")
 			setupResult = .configurationFailed
 			session.commitConfiguration()
+            sessionIsReady = true
 			return
 		}
 		
@@ -281,17 +280,18 @@ class CameraViewController: UIViewController, UIDocumentPickerDelegate {
 			session.addOutput(photoOutput)
 			
 			photoOutput.isHighResolutionCaptureEnabled = true
-			photoOutput.isLivePhotoCaptureEnabled = photoOutput.isLivePhotoCaptureSupported
             photoOutput.isDepthDataDeliveryEnabled = photoOutput.isDepthDataDeliverySupported
+            photoOutput.maxPhotoQualityPrioritization = .quality
             
 		} else {
             MessageBox.Show(view: self, message: "Could not add photo output to the session", title: "Error")
 			setupResult = .configurationFailed
 			session.commitConfiguration()
+            sessionIsReady = true
 			return
 		}
-		
 		session.commitConfiguration()
+        sessionIsReady = true
 	}
     
     // create GPS metadata properties
@@ -439,29 +439,20 @@ class CameraViewController: UIViewController, UIDocumentPickerDelegate {
                 photoOutputConnection.videoOrientation = self.currentOrientation
 			}
 			
-//            let exposureValues: [Float] = [2, -2, 0]
-//            let makeAutoExposureSettings = AVCaptureAutoExposureBracketedStillImageSettings.autoExposureSettings(exposureTargetBias: )
-//            let exposureSettings = exposureValues.map(makeAutoExposureSettings)
-            
-//            var photoSettings = AVCapturePhotoBracketSettings(rawPixelFormatType: 0,
-//                                                              processedFormat: [AVVideoCodecKey : AVVideoCodecType.jpeg],
-//                                                              bracketedSettings: exposureSettings)
             var photoSettings = AVCapturePhotoSettings();
-            // Capture HEIF photo when supported, with flash set to auto and high resolution photo enabled.
+            
+            // Capture HEIF photos when supported. Enable auto-flash and high-resolution photos.
             if  self.photoOutput.availablePhotoCodecTypes.contains(.hevc) {
-//                photoSettings = AVCapturePhotoBracketSettings(rawPixelFormatType: 0,
-//                                                              processedFormat: [AVVideoCodecKey : AVVideoCodecType.hevc],
-//                                                              bracketedSettings: exposureSettings)
                 photoSettings = AVCapturePhotoSettings(format: [AVVideoCodecKey: AVVideoCodecType.hevc])
-
             }
             
-//            photoSettings.isLensStabilizationEnabled = self.photoOutput.isLensStabilizationDuringBracketedCaptureSupported
             photoSettings.flashMode = .off
 			photoSettings.isHighResolutionPhotoEnabled = true
 			if !photoSettings.__availablePreviewPhotoPixelFormatTypes.isEmpty {
 				photoSettings.previewPhotoFormat = [kCVPixelBufferPixelFormatTypeKey as String: photoSettings.__availablePreviewPhotoPixelFormatTypes.first!]
 			}
+            
+            photoSettings.photoQualityPrioritization = .quality
 			
 			// Use a separate object for the photo capture delegate to isolate each capture life cycle.
 			let photoCaptureProcessor = PhotoCaptureProcessor(with: photoSettings, willCapturePhotoAnimation: {
@@ -495,8 +486,6 @@ class CameraViewController: UIViewController, UIDocumentPickerDelegate {
             self.fileNameLabel.textColor = UIColor.green
         }
 	}
-	
-	// MARK: Recording Movies
 	
 	private var backgroundRecordingID: UIBackgroundTaskIdentifier?
 	
@@ -689,7 +678,7 @@ class CameraViewController: UIViewController, UIDocumentPickerDelegate {
         alphaSlider.isHidden = !(imagePageControl.numberOfPages > 0)
         clearButton.isEnabled = imagePageControl.numberOfPages > 0
         
-        if videoDeviceInput.device.videoZoomFactor != actualZoom{
+        if videoDeviceInput != nil && videoDeviceInput.device.videoZoomFactor != actualZoom{
             changeZoom(to: actualZoom)
         }
         
@@ -697,7 +686,7 @@ class CameraViewController: UIViewController, UIDocumentPickerDelegate {
             imageView.image = nil
             currentFile = nil
             fileNameLabel.text = ""
-            if !session.isRunning {
+            if !session.isRunning && sessionIsReady {
                 session.startRunning()
             }
         } else {
@@ -713,11 +702,11 @@ class CameraViewController: UIViewController, UIDocumentPickerDelegate {
             fileNameLabel.textColor = currentFile!.shootAlready ? UIColor.green : UIColor.yellow
         }
         
-        else if alphaSlider.value < 1{
+        if alphaSlider.value < 1{
             hideStatusBar = true
             setNeedsStatusBarAppearanceUpdate()
             
-            if !session.isRunning{
+            if !session.isRunning && sessionIsReady {
                 session.startRunning()
             }
         } else if session.isRunning && imagePageControl.numberOfPages > 0 {
@@ -736,9 +725,12 @@ class CameraViewController: UIViewController, UIDocumentPickerDelegate {
         session.stopRunning()
         //present the document picker
         present(docPicker, animated: true, completion: nil)
-        //presentViewController:docPicker animated:YES completion:nil];
     }
     
+    
+    func documentPickerWasCancelled(_ controller: UIDocumentPickerViewController) {
+        self.fixAll()
+    }
     
     func documentPicker(_ controller: UIDocumentPickerViewController,
                         didPickDocumentsAt urls: [URL])
@@ -757,11 +749,10 @@ class CameraViewController: UIViewController, UIDocumentPickerDelegate {
             }
             if files.count > 1 {
                 files.sort(by: { (s1, s2) -> Bool in return s1.name.localizedStandardCompare(s2.name) == .orderedAscending })
-                //files.sort(by: { $0.name < $1.name })
             }
             changeImage(toIndex: 0)
         }
-        fixAll()
+        self.fixAll()
     }
     
     @IBAction func alphaChanged(_ sender: Any) {
@@ -774,7 +765,7 @@ class CameraViewController: UIViewController, UIDocumentPickerDelegate {
                 imageView.alpha = CGFloat(alphaSlider.value <= minOpacity ? 0.0 : alphaSlider.value)
             }
             
-            if !session.isRunning {
+            if !session.isRunning && sessionIsReady {
                 session.startRunning()
             }
             if currentFile != nil{
@@ -911,11 +902,11 @@ class CameraViewController: UIViewController, UIDocumentPickerDelegate {
     
     func startGyros() {
         if motion.isDeviceMotionAvailable {
-            self.motion.deviceMotionUpdateInterval = 1.0 / SettingsHelper.getGyroFrequency()
+            let updateInterval: Double = 1.0 / SettingsHelper.getGyroFrequency()
             self.motion.showsDeviceMovementDisplay = true
             self.motion.startDeviceMotionUpdates(using: .xMagneticNorthZVertical)
             
-            self.timer = Timer(fire: Date(), interval: (1.0/SettingsHelper.getGyroFrequency()), repeats: true,
+            self.timer = Timer(fire: Date(), interval: updateInterval, repeats: true,
                                block: { (timer) in
                                 if let data = self.motion.deviceMotion {
                                     
@@ -943,6 +934,7 @@ class CameraViewController: UIViewController, UIDocumentPickerDelegate {
                                         self.imageView.image = UIImage(cgImage: image.cgImage!, scale: image.scale, orientation: self.currentFile!.imageOrientation.rotatedBy(angle: self.rotation)!)
                                     }
                                 }
+                                print(self.currentOrientation.rawValue)
             })
             
             RunLoop.current.add(self.timer!, forMode: .default)
@@ -954,7 +946,7 @@ class CameraViewController: UIViewController, UIDocumentPickerDelegate {
             self.timer?.invalidate()
             self.timer = nil
             
-            self.motion.stopGyroUpdates()
+            self.motion.stopDeviceMotionUpdates()
         }
     }
 }
