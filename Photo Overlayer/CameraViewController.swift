@@ -934,7 +934,6 @@ class CameraViewController: UIViewController, UIDocumentPickerDelegate {
                                         self.imageView.image = UIImage(cgImage: image.cgImage!, scale: image.scale, orientation: self.currentFile!.imageOrientation.rotatedBy(angle: self.rotation)!)
                                     }
                                 }
-                                print(self.currentOrientation.rawValue)
             })
             
             RunLoop.current.add(self.timer!, forMode: .default)
