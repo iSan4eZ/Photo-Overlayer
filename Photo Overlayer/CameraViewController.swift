@@ -637,7 +637,9 @@ class CameraViewController: UIViewController, UIDocumentPickerDelegate {
                     if let userComment = EXIFDictionary["UserComment"] as? String{
                         for value in userComment.split(separator: ";"){
                             if value.contains("zoomValue:"){
-                                zoom = CGFloat(truncating: NumberFormatter().number(from: value.replacingOccurrences(of: "zoomValue:", with: ""))!)
+                                if let tempZoom = Double(value.replacingOccurrences(of: "zoomValue:", with: "")){
+                                    zoom = CGFloat(tempZoom)
+                                }
                             }
                         }
                     }
